@@ -19,6 +19,33 @@ import {
 } from 'lucide-react';
 import { integrationHub, type IntegrationInstance, type MarketplaceIntegration } from '../../services/integrationHubService';
 
+// Helper functions - moved outside component to be accessible by all components
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case 'active':
+      return <CheckCircle className="w-4 h-4 text-green-500" />;
+    case 'error':
+      return <AlertCircle className="w-4 h-4 text-red-500" />;
+    case 'suspended':
+      return <Clock className="w-4 h-4 text-yellow-500" />;
+    default:
+      return <Clock className="w-4 h-4 text-gray-400" />;
+  }
+};
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'active':
+      return 'text-green-600 bg-green-50';
+    case 'error':
+      return 'text-red-600 bg-red-50';
+    case 'suspended':
+      return 'text-yellow-600 bg-yellow-50';
+    default:
+      return 'text-gray-600 bg-gray-50';
+  }
+};
+
 export const IntegrationDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'instances' | 'marketplace' | 'webhooks' | 'analytics'>('instances');
   const [instances, setInstances] = useState<IntegrationInstance[]>([]);
@@ -66,32 +93,6 @@ export const IntegrationDashboard: React.FC = () => {
       console.error('Error loading dashboard data:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'error':
-        return <AlertCircle className="w-4 h-4 text-red-500" />;
-      case 'suspended':
-        return <Clock className="w-4 h-4 text-yellow-500" />;
-      default:
-        return <Clock className="w-4 h-4 text-gray-400" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'text-green-600 bg-green-50';
-      case 'error':
-        return 'text-red-600 bg-red-50';
-      case 'suspended':
-        return 'text-yellow-600 bg-yellow-50';
-      default:
-        return 'text-gray-600 bg-gray-50';
     }
   };
 

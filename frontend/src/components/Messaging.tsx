@@ -251,8 +251,8 @@ export const Messaging: React.FC<MessagingProps> = ({ user, selectedChannel, onC
                   {getChannelIcon(channel.type)}
                   <div className="flex-1 min-w-0">
                     <div className="font-medium truncate">{channel.name}</div>
-                    {channel.department && (
-                      <div className="text-xs text-gray-500">{channel.department.name}</div>
+                    {channel.department_id && (
+                      <div className="text-xs text-gray-500">Department ID: {channel.department_id}</div>
                     )}
                   </div>
                 </button>

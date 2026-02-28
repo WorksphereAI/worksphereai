@@ -1,4 +1,4 @@
-import { useAnimation, useInView, type Variants, type Transition, type TargetAndTransition } from 'framer-motion';
+import { useAnimation, useInView, type Variants, type Transition } from 'framer-motion';
 import { motion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 

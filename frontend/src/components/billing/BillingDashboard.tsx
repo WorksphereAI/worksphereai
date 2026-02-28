@@ -22,6 +22,7 @@ import {
   Activity,
   BarChart3
 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 import { subscriptionService, type SubscriptionPlan, type OrganizationSubscription, type PaymentMethod, type BusinessMetric } from '../../services/subscriptionService';
 
 export const BillingDashboard: React.FC = () => {
@@ -95,7 +96,9 @@ export const BillingDashboard: React.FC = () => {
       const { url } = await subscriptionService.createCheckoutSession(
         userData.organization_id,
         priceId,
-        isYearly
+        isYearly,
+        `${window.location.origin}/billing`,
+        `${window.location.origin}/billing?canceled=true`
       );
 
       if (url) {

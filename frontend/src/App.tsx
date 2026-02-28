@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PageTransition } from './hooks/useAppleAnimation';
@@ -24,6 +24,9 @@ import { PricingPage } from './pages/public/PricingPage';
 
 // Auth Components
 import { SignupPage } from './components/auth/SignupPage';
+import { IndividualSignup } from './components/auth/IndividualSignup';
+import { EnterpriseSignup } from './components/auth/EnterpriseSignup';
+import { CustomerSignup } from './components/auth/CustomerSignup';
 import { ProfessionalAuth } from './components/auth/ProfessionalAuth';
 
 // Protected Components
@@ -32,6 +35,22 @@ import { Dashboard } from './components/Dashboard';
 // Error Pages
 import { UnauthorizedPage } from './pages/errors/UnauthorizedPage';
 import { NotFoundPage } from './pages/errors/NotFoundPage';
+
+// Signup type router component
+const SignupTypeRouter: React.FC = () => {
+  const { type } = useParams<{ type: string }>();
+  
+  switch (type) {
+    case 'individual':
+      return <IndividualSignup />;
+    case 'enterprise':
+      return <EnterpriseSignup />;
+    case 'customer':
+      return <CustomerSignup />;
+    default:
+      return <Navigate to={ROUTES.public.signup} replace />;
+  }
+};
 
 // Dashboard wrapper to handle user prop
 const DashboardWrapper: React.FC = () => {
@@ -97,14 +116,12 @@ export const App: React.FC = () => {
             
             {/* Auth Routes (Redirect if authenticated) */}
             <Route path={ROUTES.public.signup} element={<AuthRoute><SignupPage /></AuthRoute>} />
+            <Route path={ROUTES.public.signupType} element={<AuthRoute><SignupTypeRouter /></AuthRoute>} />
             <Route path={ROUTES.public.login} element={<AuthRoute><ProfessionalAuth onAuth={() => {}} /></AuthRoute>} />
             
             {/* Legacy route redirects */}
             <Route path="/signin" element={<Navigate to={ROUTES.public.login} replace />} />
             <Route path="/register" element={<Navigate to={ROUTES.public.signup} replace />} />
-            <Route path="/signup/enterprise" element={<Navigate to={ROUTES.public.signup} replace />} />
-            <Route path="/signup/individual" element={<Navigate to={ROUTES.public.signup} replace />} />
-            <Route path="/signup/customer" element={<Navigate to={ROUTES.public.signup} replace />} />
             <Route path="/verify-email" element={<Navigate to={ROUTES.public.login} replace />} />
             <Route path="/verify" element={<Navigate to={ROUTES.public.login} replace />} />
             <Route path="/onboarding" element={<Navigate to={ROUTES.public.login} replace />} />

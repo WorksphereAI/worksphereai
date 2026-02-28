@@ -10,7 +10,8 @@ import {
   Plus,
   Zap,
   TrendingUp,
-  Clock
+  Clock,
+  BarChart3
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Messaging } from './Messaging'
@@ -307,7 +308,7 @@ const CEOView: React.FC<{ departments: any[] }> = ({ departments }) => (
 )
 
 // Manager View - Team Focus
-const ManagerView: React.FC<{ departments: any[], user: any }> = ({ departments, user }) => (
+const ManagerView: React.FC<{ departments: any[], user: any }> = ({ departments }) => (
   <div>
     <h2 className="text-2xl font-bold text-gray-900 mb-6">Team Management</h2>
     

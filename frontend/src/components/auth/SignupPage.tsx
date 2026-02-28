@@ -162,6 +162,10 @@ export const SignupPage: React.FC = () => {
 
                   {/* CTA Button */}
                   <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelectType(type.id as any);
+                    }}
                     className={`w-full py-3 px-4 bg-gradient-to-r ${type.color} text-white rounded-xl font-medium hover:opacity-90 transition-opacity flex items-center justify-center space-x-2 group-hover:scale-105 transform transition-transform`}
                   >
                     <span>Get Started</span>

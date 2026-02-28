@@ -37,6 +37,7 @@ export interface WebhookEndpoint {
   name: string;
   endpoint_url: string;
   events: string[];
+  secret_key?: string;
   is_active: boolean;
   retry_policy: Record<string, any>;
   headers: Record<string, any>;
@@ -432,7 +433,7 @@ export class IntegrationHubService {
 
     const integrationsByCategory: Record<string, number> = {};
     instances?.forEach(instance => {
-      const category = instance.integration?.category || 'Unknown';
+      const category = (instance.integration as any)?.category || 'Unknown';
       integrationsByCategory[category] = (integrationsByCategory[category] || 0) + 1;
     });
 
@@ -443,7 +444,7 @@ export class IntegrationHubService {
       total_syncs: syncs?.length || 0,
       integrations_by_category: integrationsByCategory,
       recent_activity: activity?.map(a => ({
-        integration_name: a.integration_instance?.name || 'Unknown',
+        integration_name: (a.integration_instance as any)?.name || 'Unknown',
         event_type: a.event_type,
         timestamp: a.timestamp
       })) || []
@@ -462,7 +463,7 @@ export class IntegrationHubService {
     return `https://${integration.provider.toLowerCase()}.com/oauth/authorize?client_id=mock&redirect_uri=${redirectUri}`;
   }
 
-  async handleOAuthCallback(code: string, state: string): Promise<{
+  async handleOAuthCallback(_code: string, _state: string): Promise<{
     access_token: string;
     refresh_token?: string;
     expires_in?: number;

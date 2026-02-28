@@ -11,12 +11,12 @@ interface SyncQueueItem {
   retryCount: number;
 }
 
-interface OfflineCache {
-  [table: string]: {
-    [id: string]: any;
-    lastSync: number;
-  };
-}
+// interface OfflineCache {
+//   [table: string]: {
+//     [id: string]: any;
+//     lastSync: number;
+//   };
+// }
 
 export class OfflineSyncService {
   private db: IDBDatabase | null = null;

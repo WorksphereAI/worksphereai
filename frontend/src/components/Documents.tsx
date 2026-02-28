@@ -18,7 +18,8 @@ import {
   Share2,
   Star,
   History,
-  Tag
+  Tag,
+  XCircle
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { uploadFile } from '../lib/cloudinary'
@@ -142,10 +143,10 @@ export const Documents: React.FC<DocumentsProps> = ({ user }) => {
         },
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            setDocuments(prev => [payload.new, ...prev])
+            setDocuments(prev => [payload.new as any, ...prev])
           } else if (payload.eventType === 'UPDATE') {
             setDocuments(prev => prev.map(doc => 
-              doc.id === payload.new.id ? payload.new : doc
+              doc.id === (payload.new as any).id ? payload.new as any : doc
             ))
           } else if (payload.eventType === 'DELETE') {
             setDocuments(prev => prev.filter(doc => doc.id !== payload.old.id))
@@ -255,7 +256,7 @@ export const Documents: React.FC<DocumentsProps> = ({ user }) => {
           size: newFile.size,
           version: newVersion,
           metadata: {
-            ...currentDoc?.metadata,
+            ...(currentDoc as any)?.metadata,
             previous_version: currentDoc?.version,
             uploaded_at: new Date().toISOString()
           }
@@ -266,7 +267,7 @@ export const Documents: React.FC<DocumentsProps> = ({ user }) => {
         .from('files')
         .update({
           metadata: {
-            ...currentDoc?.metadata,
+            ...(currentDoc as any)?.metadata,
             latest_version: newVersion,
             updated_at: new Date().toISOString()
           }
@@ -319,7 +320,7 @@ export const Documents: React.FC<DocumentsProps> = ({ user }) => {
       txt: '📄',
       md: '📄'
     }
-    return iconMap[extension] || '📄'
+    return iconMap[extension as keyof typeof iconMap] || '📄'
   }
 
   const filteredDocuments = documents.filter(doc => {
@@ -412,7 +413,7 @@ export const Documents: React.FC<DocumentsProps> = ({ user }) => {
 
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              onChange={(e) => setSortBy(e.target.value as "name" | "date" | "size")}
               className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             >
               <option value="date">Date Modified</option>

@@ -34,6 +34,7 @@ export interface OrganizationSubscription {
   id: string;
   organization_id: string;
   plan_id: string;
+  plan?: SubscriptionPlan; // Add plan property
   stripe_subscription_id?: string;
   stripe_customer_id?: string;
   status: 'active' | 'past_due' | 'canceled' | 'incomplete' | 'trialing' | 'unpaid';
