@@ -418,7 +418,7 @@ class WhiteLabelService {
   }
 
   async updateSubscription(organizationId: string, planType: 'starter' | 'professional' | 'enterprise', billingCycle: 'monthly' | 'yearly' = 'monthly'): Promise<WhiteLabelSubscription> {
-    const { data, error } = await supabase.rpc('update_white_label_subscription', {
+    const { data: _, error } = await supabase.rpc('update_white_label_subscription', {
       p_organization_id: organizationId,
       p_plan_type: planType,
       p_billing_cycle: billingCycle

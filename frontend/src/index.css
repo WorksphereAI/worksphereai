@@ -2,9 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Import Apple Design System */
+@import './styles/apple-design-system.css';
 
-/* Base layer styles */
+/* Base layer overrides */
 @layer base {
   * {
     margin: 0;
@@ -15,40 +16,58 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply font-sans text-gray-900 bg-gray-50;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-family: var(--font-text);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    transition: background-color var(--duration-normal) var(--apple-ease), 
+                color var(--duration-normal) var(--apple-ease);
   }
 
-  /* Typography base styles */
+  /* Typography overrides */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold text-gray-900;
+    font-family: var(--font-display);
+    font-weight: var(--font-semibold);
+    letter-spacing: var(--tracking-tight);
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
   }
 
-  h1 { @apply text-3xl; }
-  h2 { @apply text-2xl; }
-  h3 { @apply text-xl; }
-  h4 { @apply text-lg; }
-  h5 { @apply text-base; }
-  h6 { @apply text-sm; }
-
-  p {
-    @apply text-gray-600;
+  /* Apple-style scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
   }
 
-  a {
-    @apply text-brand-600 hover:text-brand-700 transition-colors duration-200;
+  ::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
   }
 
-  /* Focus styles */
-  *:focus {
-    @apply outline-none;
+  ::-webkit-scrollbar-thumb {
+    background: var(--text-tertiary);
+    border-radius: 4px;
+    transition: background-color var(--duration-normal) var(--apple-ease);
   }
 
-  *:focus-visible {
-    @apply ring-2 ring-brand-500 ring-offset-2;
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+  }
+
+  /* Selection styling */
+  ::selection {
+    background: rgba(0, 122, 255, 0.2);
+    color: var(--text-primary);
+  }
+
+  /* Focus outline */
+  :focus-visible {
+    outline: 2px solid var(--apple-blue);
+    outline-offset: 2px;
   }
 }
 

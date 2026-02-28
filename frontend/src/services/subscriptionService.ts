@@ -1,6 +1,7 @@
 // src/services/subscriptionService.ts
 import Stripe from 'stripe';
 import { supabase } from '../lib/supabase';
+import process from 'process';
 
 // Initialize Stripe with your secret key
 const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY || '', {

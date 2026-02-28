@@ -544,22 +544,6 @@ class SignupService {
       return { total: 0, by_type: {}, by_day: {} };
     }
   }
-
-  private getTimeframeDate(timeframe: 'day' | 'week' | 'month'): string {
-    const now = new Date();
-    switch (timeframe) {
-      case 'day':
-        now.setDate(now.getDate() - 1);
-        break;
-      case 'week':
-        now.setDate(now.getDate() - 7);
-        break;
-      case 'month':
-        now.setMonth(now.getMonth() - 1);
-        break;
-    }
-    return now.toISOString();
-  }
 }
 
 export const signupService = new SignupService();

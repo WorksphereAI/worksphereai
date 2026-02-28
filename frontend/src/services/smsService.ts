@@ -1,6 +1,5 @@
 // src/services/smsService.ts
 import { supabase } from '../lib/supabase';
-import { v4 as uuidv4 } from 'uuid';
 
 export interface SMSVerification {
   id?: string;
@@ -215,7 +214,7 @@ class SMSService {
   // ============================================
 
   async sendBulkSMS(phones: string[], message: string): Promise<{ success: string[], failed: string[] }> {
-    const results = { success: [], failed: [] };
+    const results: { success: string[], failed: string[] } = { success: [], failed: [] };
 
     for (const phone of phones) {
       try {

@@ -485,6 +485,7 @@ export class SalesPipelineService {
     // Calculate historical win rate and deal size
     const recentDeals = closedDeals.slice(0, 6);
     const avgDealSize = recentDeals.reduce((sum, deal) => sum + (deal.estimated_value || 0), 0) / recentDeals.length;
+    console.log('Average deal size for forecasting:', avgDealSize); // Debug log
     
     // Calculate probability-weighted pipeline value
     const pipelineValue = pipelineDeals.reduce((sum, deal) => {
