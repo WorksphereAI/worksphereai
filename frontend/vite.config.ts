@@ -35,10 +35,11 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       // Ensure environment variables are available at build time
+      // WARNING: Only public variables (VITE_ prefix) should go here
+      // API keys should NEVER be exposed to the browser
       'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(env.VITE_SUPABASE_URL),
       'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(env.VITE_SUPABASE_ANON_KEY),
       'import.meta.env.VITE_GOOGLE_CLIENT_ID': JSON.stringify(env.VITE_GOOGLE_CLIENT_ID),
-      'import.meta.env.VITE_RESEND_API_KEY': JSON.stringify(env.VITE_RESEND_API_KEY),
       'import.meta.env.VITE_PROD_URL': JSON.stringify(env.VITE_PROD_URL),
     }
   }

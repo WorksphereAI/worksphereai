@@ -1,6 +1,13 @@
 # Resend Email Service Setup Guide
 
-This guide will help you set up Resend for the WorkSphere AI signup system.
+This guide will help you set up Resend for the WorkSphere AI email system. A critical security update has been implemented: **API keys are now kept server-side only** and never exposed to the browser.
+
+## ⚠️ Important Security Note
+
+The frontend **cannot and should not** have direct access to Resend API keys. All email sending is now handled through secure backend endpoints. This prevents:
+- API key exposure in browser console
+- Client-side accidental key leaking
+- Man-in-the-middle attacks on API keys
 
 ## 🚀 Quick Setup (5 minutes)
 
@@ -19,52 +26,120 @@ This guide will help you set up Resend for the WorkSphere AI signup system.
 4. **Give it a name** (e.g., "WorkSphere AI Development")
 5. **Copy the API key** (it starts with `re_`)
 
-### 3. Configure Your Environment
+### 3. Configure Your Backend Environment
 
-1. **Open your `.env` file** in the frontend directory
-2. **Replace the placeholder**:
+**IMPORTANT: Store the API key in your backend `.env` file, NOT the frontend!**
+
+#### For Local Development:
+
+1. **Create/Update `backend\.env`** (in the backend directory):
    ```bash
-   # Change this:
-   VITE_RESEND_API_KEY=re_your_resend_api_key_here
-   
-   # To your actual key:
-   VITE_RESEND_API_KEY=re_1234567890abcdef1234567890abcdef
+   # Email Service (Resend) - BACKEND ONLY
+   RESEND_API_KEY=re_1234567890abcdef1234567890abcdef
    ```
+
+2. **Ensure `frontend\.env` does NOT have RESEND_API_KEY**:
+   ```bash
+   # ❌ DO NOT ADD THIS TO FRONTEND .env:
+   # VITE_RESEND_API_KEY=...
+   ```
+
+#### For Vercel Deployment:
+
+1. **Add environment variable to your Vercel project**:
+   - Go to Project Settings → Environment Variables
+   - Add: `RESEND_API_KEY` = `re_your_api_key`
+   - Apply to all environments (Production, Preview, Development)
+
+2. **Do NOT add VITE_RESEND_API_KEY**:
+   - The frontend will call backend endpoints
+   - No API key should be exposed to the browser
 
 ### 4. Restart Development Server
 
 ```bash
 # Stop current server (Ctrl+C)
+npm run dev:backend
+# In another terminal:
+npm run dev:frontend
+```
+
+Or run both together:
+```bash
 npm run dev
 ```
 
-## 🎯 **For Development (Quick Test)**
+## 📡 **Architecture Overview**
 
-### Option A: Use Resend (Recommended)
-1. **Add a development domain**:
-   - In Resend Dashboard → Domains
-   - Add `localhost:5173`
-   - Skip verification for now (works for development)
+### Email Flow (Updated for Security)
 
-### Option B: Use Mock Service (For Testing)
-If you want to test without Resend, I can create a mock email service.
+```
+Frontend User Action
+    ↓
+Frontend calls: POST /functions/v1/send-email
+    ↓
+Backend (Supabase Edge Function)
+    ↓
+Backend uses: process.env.RESEND_API_KEY (SECURE)
+    ↓
+Resend API
+    ↓
+Email Delivered to User
+```
 
-## 📧 **Email Templates You'll Get**
+### Key Differences from Insecure Setup
 
-### 1. Verification Email
-- **Subject**: "Verify your WorkSphere AI account"
-- **Content**: Professional HTML with verification link
-- **Branding**: WorkSphere AI with gradients and icons
+| Aspect | ❌ Old (Insecure) | ✅ New (Secure) |
+|--------|------------------|-----------------|
+| **API Key Location** | Frontend `.env` | Backend `.env` |
+| **Exposed to Browser** | ❌ Yes (can be seen in console) | ✅ No |
+| **Backend Endpoint** | No backend | `POST /functions/v1/send-email` |
+| **Frontend Usage** | Direct Resend library | HTTP request to backend |
+| **Security Risk** | Very High | Minimal |
 
-### 2. Welcome Email
-- **Subject**: "🎉 Welcome to WorkSphere AI!"
-- **Content**: Personalized welcome with next steps
-- **User Type**: Different content for Enterprise/Individual/Customer
+## 📧 **Email Templates**
 
-### 3. Onboarding Complete Email
-- **Subject**: "🎊 Setup Complete! Welcome to WorkSphere AI"
-- **Content**: Confirmation with dashboard link
-- **Features**: Highlights of what's available
+### Supported Email Types
+
+1. **Verification Email**
+   - Subject: "Verify your WorkSphere AI account"
+   - Used during signup
+   - Includes verification link
+
+2. **Resend Verification Email**
+   - Subject: "Here's your verification link"
+   - Retry for failed verification
+   - Same verification URL
+
+3. **Welcome Email**
+   - Subject: "🎉 Welcome to WorkSphere AI!"
+   - User-personalized greeting
+   - Different for Enterprise/Individual/Customer users
+
+4. **Onboarding Complete Email**
+   - Subject: "🎊 Setup Complete! Welcome to WorkSphere AI"
+   - Confirms setup success
+   - Includes dashboard link
+
+5. **Password Reset Email**
+   - Subject: "Reset your WorkSphere AI password"
+   - Includes reset link with token
+   - Time-limited (for security)
+
+6. **Invitation Email**
+   - Subject: "You're invited to join WorkSphere AI"
+   - Sent by team admins
+   - Includes acceptance link
+
+7. **Invitation Accepted Email**
+   - Subject: "New team member joined!"
+   - Notifies admins of acceptance
+   - Shows new member name
+
+8. **Account Suspended Email**
+   - Subject: "Your WorkSphere AI account has been suspended"
+   - Includes suspension reason
+   - Support contact information
 
 ## 🔧 **Advanced Configuration**
 
@@ -85,88 +160,149 @@ If you want to test without Resend, I can create a mock email service.
 
 3. **Verify domain** (takes 5-10 minutes)
 
-### Email Templates
+### Using a Custom Send Domain
 
-The WorkSphere AI system includes professional email templates:
-- **Verification emails** with security best practices
-- **Welcome emails** with personalized content
-- **Onboarding emails** with setup guidance
-- **Support emails** for notifications and alerts
+In `backend/.env`:
+```bash
+RESEND_API_KEY=re_your_api_key
+RESEND_FROM_EMAIL=noreply@yourdomain.com
+```
+
+Then update [send-email/index.ts](backend/functions/send-email/index.ts):
+```typescript
+const from = Deno.env.get('RESEND_FROM_EMAIL') || 'noreply@worksphere.ai'
+```
 
 ## 🚀 **Testing Your Setup**
 
-### Test Email Verification
-1. Go to `http://localhost:5173/signup`
-2. Fill out any signup form
-3. Check your email for verification link
-4. Click the link to complete signup
+### Local Testing
 
-### Test Different User Types
-- **Enterprise**: `/signup/enterprise` → Company-focused emails
-- **Individual**: `/signup/individual` → Professional emails  
-- **Customer**: `/signup/customer` → Portal access emails
+1. **Start development servers**:
+   ```bash
+   npm run dev
+   ```
+
+2. **Test signup endpoint**:
+   - Go to `http://localhost:5173/signup`
+   - Fill in the form
+   - You should see email logs in console
+
+3. **Check console logs**:
+   - Backend logs: Check terminal running backend
+   - Frontend logs: Check browser console
+
+### API Testing with cURL
+
+```bash
+curl -X POST http://localhost:54321/functions/v1/send-email \
+  -H "Content-Type: application/json" \
+  -d '{
+    "to": "test@example.com",
+    "subject": "Test Email",
+    "html": "<h1>Hello</h1>",
+    "from": "noreply@worksphere.ai"
+  }'
+```
+
+### Production Testing
+
+1. **Deploy backend to Vercel**:
+   ```bash
+   npm run build:backend
+   npm run deploy:prod
+   ```
+
+2. **Test with production Resend key**:
+   - Verify emails arrive
+   - Check Resend dashboard for delivery stats
 
 ## 🛠️ **Troubleshooting**
 
 ### Common Issues
 
-#### "Missing API key" Error
-- **Solution**: Add your Resend API key to `.env` file
-- **Check**: Make sure the key starts with `re_`
+#### "Cannot POST /functions/v1/send-email"
+- **Cause**: Backend not running or endpoint not deployed
+- **Solution**: 
+  - Local: Run `npm run dev:backend`
+  - Production: Redeploy backend functions
 
-#### "Domain not verified" Error
-- **Solution**: Add and verify your domain in Resend
-- **Workaround**: Use `localhost:5173` for development
+#### "RESEND_API_KEY is not configured"
+- **Cause**: Backend `.env` file missing the key
+- **Solution**: Add to `backend/.env`: `RESEND_API_KEY=re_...`
 
-#### "Email not received"
-- **Check**: Spam folder
-- **Check**: Email address is correct
-- **Check**: Domain verification status
+#### "Email not sent - 401 Unauthorized"
+- **Cause**: Invalid or expired Resend API key
+- **Solution**: Generate new key in Resend dashboard
 
-#### "Rate limit exceeded"
-- **Wait**: Resend has generous free tier limits
-- **Upgrade**: Pro plans have higher limits
+#### "Email delivery failing in production"
+- **Cause**: Domain not verified or SPF/DKIM not set
+- **Solution**: 
+  1. Verify domain in Resend
+  2. Add DNS records
+  3. Wait 24 hours for DNS propagation
+
+#### "Emails going to spam folder"
+- **Cause**: Missing authentication or suspicious content
+- **Solution**:
+  - Set up SPF/DKIM/DMARC
+  - Use consistent sender email
+  - Include unsubscribe link
 
 ## 📊 **Email Analytics**
 
-Resend provides built-in analytics:
-- **Delivery rates**: Track email success
-- **Open rates**: See who opens emails
-- **Click rates**: Track link engagement
-- **Bounce handling**: Manage invalid emails
+Monitor your email performance in Resend Dashboard:
+- **Delivery rate**: Percentage successfully delivered
+- **Open rate**: Percentage opened by recipients
+- **Click rate**: Engagement with links
+- **Bounce rate**: Failed deliveries
+- **Spam complaints**: By sender domain
 
 ## 🔐 **Security Best Practices**
 
-### API Key Security
-- **Never commit** `.env` file to version control
-- **Use different keys** for development/production
-- **Rotate keys** periodically
-- **Monitor usage** for unusual activity
+### Keep Your API Key Safe
+- ✅ Store in `backend/.env` (gitignored)
+- ✅ Use Vercel environment variables for production
+- ✅ Rotate keys periodically
+- ✅ Monitor for unusual activity
+- ❌ Never commit `.env` to git
+- ❌ Never share via email/chat
+- ❌ Never put in frontend code
 
 ### Email Security
-- **Domain verification** prevents spoofing
-- **SPF/DKIM/DMARC** improves deliverability
-- **Rate limiting** prevents abuse
-- **Unsubscribe links** required for compliance
+- **Domain verification**: Prevents email spoofing
+- **SPF records**: Authorizes mail servers
+- **DKIM**: Digitally signs emails
+- **DMARC**: Authentication policy
+- **Unsubscribe links**: Required by law (CAN-SPAM, GDPR)
 
 ## 📞 **Support**
 
-### Resend Support
-- **Email**: support@resend.com
-- **Documentation**: https://resend.com/docs
+### Resend Documentation
+- **Official Docs**: https://resend.com/docs
+- **API Reference**: https://resend.com/docs/api-reference
 - **Status Page**: https://resend.com/status
 
-### WorkSphere AI Support
-- **GitHub Issues**: https://github.com/WorksphereAI/worksphereai/issues
+### Resend Support
+- **Email**: support@resend.com
+- **Discord**: Join Resend community
+
+### WorkSphere AI
+- **GitHub**: https://github.com/WorksphereAI/worksphereai
+- **Issues**: Report problems on GitHub
 - **Email**: support@worksphere.ai
-- **Documentation**: Check project README
 
 ## ✅ **Setup Complete Checklist**
 
-- [ ] Created Resend account
-- [ ] Generated API key
-- [ ] Added API key to `.env` file
-- [ ] Restarted development server
+- [ ] Created Resend account at resend.com
+- [ ] Generated API key (starts with `re_`)
+- [ ] Added `RESEND_API_KEY=re_...` to `backend/.env`
+- [ ] Verified `frontend/.env` does NOT have RESEND_API_KEY
+- [ ] Started backend with `npm run dev:backend`
+- [ ] Started frontend with `npm run dev:frontend`
+- [ ] Tested email sending with signup form
+- [ ] Checked backend logs for email delivery confirmation
+- [ ] For production: Added environment variable to Vercel
+- [ ] For production: Set up custom domain in Resend (optional)
 - [ ] Tested email verification
 - [ ] Verified email delivery
 - [ ] Checked spam folder

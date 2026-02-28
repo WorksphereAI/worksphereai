@@ -1,16 +1,59 @@
 // src/services/emailService.ts
-import { Resend } from 'resend';
-
-// Check if we have a real Resend API key
-const hasRealApiKey = import.meta.env.VITE_RESEND_API_KEY && 
-  import.meta.env.VITE_RESEND_API_KEY.startsWith('re_') && 
-  import.meta.env.VITE_RESEND_API_KEY.length > 30;
 
 export interface EmailTemplate {
   to: string;
   subject: string;
   html: string;
   from?: string;
+}
+
+// Get the backend URL for email endpoint
+function getBackendEmailEndpoint(): string {
+  // For development, use local Supabase function URL
+  if (import.meta.env.DEV) {
+    return 'http://localhost:54321/functions/v1/send-email'
+  }
+  
+  // For production, use the Supabase project URL
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+  if (supabaseUrl) {
+    return `${supabaseUrl}/functions/v1/send-email`
+  }
+  
+  throw new Error('VITE_SUPABASE_URL is not configured')
+}
+
+// Send email through backend endpoint
+async function sendEmailThroughBackend(template: EmailTemplate): Promise<void> {
+  try {
+    const endpoint = getBackendEmailEndpoint()
+    
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: template.to,
+        subject: template.subject,
+        html: template.html,
+        from: template.from || 'noreply@worksphere.ai',
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(
+        errorData.error || `Email service returned: ${response.status}`
+      )
+    }
+
+    const data = await response.json()
+    console.log('✅ Email sent successfully:', data)
+  } catch (error) {
+    console.error('Error sending email:', error)
+    throw error
+  }
 }
 
 class EmailService {
@@ -27,31 +70,15 @@ class EmailService {
     const template = this.getVerificationTemplate(email, verificationUrl, userType);
     
     try {
-      if (hasRealApiKey) {
-        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-        const { data, error } = await resend.emails.send({
-          from: `${this.fromName} <${this.fromEmail}>`,
-          ...template
-        });
-
-        if (error) {
-          console.error('Resend API error:', error);
-          throw new Error(`Failed to send email: ${error.message}`);
-        }
-
-        console.log('✅ Verification email sent successfully:', data);
-      } else {
-        // Fallback for development
-        console.log('📧 DEV MODE - Verification email would be sent to:', email);
-        console.log('📧 Verification URL:', verificationUrl);
-        console.log('📧 User Type:', userType);
-      }
+      await sendEmailThroughBackend(template);
     } catch (error) {
       console.error('Error sending verification email:', error);
       
       // Don't throw in development - just log
       if (import.meta.env.DEV) {
         console.log('📧 DEV MODE - Email sending failed, but continuing...');
+        console.log('📧 Email would be sent to:', email);
+        console.log('📧 Verification URL:', verificationUrl);
         return;
       }
       
@@ -65,27 +92,13 @@ class EmailService {
     const template = this.getVerificationTemplate(email, verificationUrl, userType);
     
     try {
-      if (hasRealApiKey) {
-        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-        const { data, error } = await resend.emails.send({
-          from: `${this.fromName} <${this.fromEmail}>`,
-          ...template
-        });
-
-        if (error) {
-          console.error('Resend API error:', error);
-          throw new Error(`Failed to resend email: ${error.message}`);
-        }
-
-        console.log('✅ Resend verification email sent successfully:', data);
-      } else {
-        console.log('📧 DEV MODE - Resend verification email would be sent to:', email);
-      }
+      await sendEmailThroughBackend(template);
     } catch (error) {
       console.error('Error resending verification email:', error);
       
       if (import.meta.env.DEV) {
         console.log('📧 DEV MODE - Email resend failed, but continuing...');
+        console.log('📧 Email would be sent to:', email);
         return;
       }
       
@@ -109,27 +122,13 @@ class EmailService {
     const template = this.getInvitationTemplate(email, invitationUrl, inviterName, organizationName, role);
     
     try {
-      if (hasRealApiKey) {
-        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-        const { data, error } = await resend.emails.send({
-          from: `${this.fromName} <${this.fromEmail}>`,
-          ...template
-        });
-
-        if (error) {
-          console.error('Resend API error:', error);
-          throw new Error(`Failed to send invitation: ${error.message}`);
-        }
-
-        console.log('✅ Invitation email sent successfully:', data);
-      } else {
-        console.log('📧 DEV MODE - Invitation email would be sent to:', email);
-      }
+      await sendEmailThroughBackend(template);
     } catch (error) {
       console.error('Error sending invitation email:', error);
       
       if (import.meta.env.DEV) {
         console.log('📧 DEV MODE - Invitation email failed, but continuing...');
+        console.log('📧 Email would be sent to:', email);
         return;
       }
       
@@ -145,27 +144,13 @@ class EmailService {
     const template = this.getWelcomeTemplate(email, name, userType);
     
     try {
-      if (hasRealApiKey) {
-        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-        const { data, error } = await resend.emails.send({
-          from: `${this.fromName} <${this.fromEmail}>`,
-          ...template
-        });
-
-        if (error) {
-          console.error('Resend API error:', error);
-          throw new Error(`Failed to send welcome email: ${error.message}`);
-        }
-
-        console.log('✅ Welcome email sent successfully:', data);
-      } else {
-        console.log('📧 DEV MODE - Welcome email would be sent to:', email);
-      }
+      await sendEmailThroughBackend(template);
     } catch (error) {
       console.error('Error sending welcome email:', error);
       
       if (import.meta.env.DEV) {
         console.log('📧 DEV MODE - Welcome email failed, but continuing...');
+        console.log('📧 Email would be sent to:', email);
         return;
       }
       
@@ -177,27 +162,13 @@ class EmailService {
     const template = this.getOnboardingCompleteTemplate(email, name, organizationName);
     
     try {
-      if (hasRealApiKey) {
-        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-        const { data, error } = await resend.emails.send({
-          from: `${this.fromName} <${this.fromEmail}>`,
-          ...template
-        });
-
-        if (error) {
-          console.error('Resend API error:', error);
-          throw new Error(`Failed to send onboarding email: ${error.message}`);
-        }
-
-        console.log('✅ Onboarding complete email sent successfully:', data);
-      } else {
-        console.log('📧 DEV MODE - Onboarding complete email would be sent to:', email);
-      }
+      await sendEmailThroughBackend(template);
     } catch (error) {
       console.error('Error sending onboarding complete email:', error);
       
       if (import.meta.env.DEV) {
         console.log('📧 DEV MODE - Onboarding email failed, but continuing...');
+        console.log('📧 Email would be sent to:', email);
         return;
       }
       
@@ -215,27 +186,13 @@ class EmailService {
     const template = this.getPasswordResetTemplate(email, resetUrl);
     
     try {
-      if (hasRealApiKey) {
-        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-        const { data, error } = await resend.emails.send({
-          from: `${this.fromName} <${this.fromEmail}>`,
-          ...template
-        });
-
-        if (error) {
-          console.error('Resend API error:', error);
-          throw new Error(`Failed to send password reset: ${error.message}`);
-        }
-
-        console.log('✅ Password reset email sent successfully:', data);
-      } else {
-        console.log('📧 DEV MODE - Password reset email would be sent to:', email);
-      }
+      await sendEmailThroughBackend(template);
     } catch (error) {
       console.error('Error sending password reset email:', error);
       
       if (import.meta.env.DEV) {
         console.log('📧 DEV MODE - Password reset email failed, but continuing...');
+        console.log('📧 Email would be sent to:', email);
         return;
       }
       
@@ -255,27 +212,13 @@ class EmailService {
     const template = this.getInvitationAcceptedTemplate(adminEmail, newMemberName, organizationName);
     
     try {
-      if (hasRealApiKey) {
-        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-        const { data, error } = await resend.emails.send({
-          from: `${this.fromName} <${this.fromEmail}>`,
-          ...template
-        });
-
-        if (error) {
-          console.error('Resend API error:', error);
-          throw new Error(`Failed to send invitation accepted: ${error.message}`);
-        }
-
-        console.log('✅ Invitation accepted email sent successfully:', data);
-      } else {
-        console.log('📧 DEV MODE - Invitation accepted email would be sent to:', adminEmail);
-      }
+      await sendEmailThroughBackend(template);
     } catch (error) {
       console.error('Error sending invitation accepted email:', error);
       
       if (import.meta.env.DEV) {
         console.log('📧 DEV MODE - Invitation accepted email failed, but continuing...');
+        console.log('📧 Email would be sent to:', adminEmail);
         return;
       }
       
@@ -287,27 +230,13 @@ class EmailService {
     const template = this.getAccountSuspendedTemplate(email, name, reason);
     
     try {
-      if (hasRealApiKey) {
-        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-        const { data, error } = await resend.emails.send({
-          from: `${this.fromName} <${this.fromEmail}>`,
-          ...template
-        });
-
-        if (error) {
-          console.error('Resend API error:', error);
-          throw new Error(`Failed to send suspension email: ${error.message}`);
-        }
-
-        console.log('✅ Account suspended email sent successfully:', data);
-      } else {
-        console.log('📧 DEV MODE - Account suspended email would be sent to:', email);
-      }
+      await sendEmailThroughBackend(template);
     } catch (error) {
       console.error('Error sending account suspended email:', error);
       
       if (import.meta.env.DEV) {
         console.log('📧 DEV MODE - Suspension email failed, but continuing...');
+        console.log('📧 Email would be sent to:', email);
         return;
       }
       
