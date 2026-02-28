@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { signupService } from '../../services/signupService';
 import { userService } from '../../services/userService';
+import { useAuth } from '../../contexts/AuthContext';
+import { ROUTES } from '../../config/routes';
 
 interface CompanyInfo {
   name: string;
@@ -63,6 +65,8 @@ export const EnterpriseSignup: React.FC = () => {
     confirmPassword: '',
     jobTitle: ''
   });
+
+  const { login } = useAuth();
 
   const industries = [
     'Technology',
@@ -242,11 +246,11 @@ export const EnterpriseSignup: React.FC = () => {
         }
       });
 
-      // Create user record immediately without email verification
-      await userService.createUser({
+      // Create auth user + user record
+      await userService.createAuthUser(personalInfo.email, personalInfo.password, {
         email: personalInfo.email,
         full_name: personalInfo.fullName,
-        role: 'ceo', // Enterprise users become CEO
+        role: 'ceo',
         settings: {
           signup_source: 'enterprise',
           organization_name: companyInfo.name,
@@ -259,13 +263,9 @@ export const EnterpriseSignup: React.FC = () => {
       // Track signup completion
       await signupService.trackSignupEvent('enterprise_signup_completed', 'enterprise', 'account_created');
 
-      // Navigate to login with success message
-      navigate('/login', {
-        state: {
-          message: 'Account created successfully! You can now log in with your credentials.',
-          email: personalInfo.email
-        }
-      });
+      // Immediately sign the user in and redirect to dashboard
+      await login(personalInfo.email, personalInfo.password);
+      navigate(ROUTES.protected.dashboard);
 
     } catch (error: any) {
       console.error('Error creating signup:', error);

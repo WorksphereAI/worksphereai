@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { signupService } from '../../services/signupService';
 import { userService } from '../../services/userService';
+import { useAuth } from '../../contexts/AuthContext';
+import { ROUTES } from '../../config/routes';
 
 interface PersonalInfo {
   fullName: string;
@@ -48,6 +50,8 @@ export const IndividualSignup: React.FC = () => {
     location: '',
     experience: ''
   });
+
+  const { login } = useAuth();
 
   const experienceLevels = [
     'Student',
@@ -151,11 +155,11 @@ export const IndividualSignup: React.FC = () => {
         }
       });
 
-      // Create user record immediately without email verification
-      await userService.createUser({
+      // Create auth user + user record
+      await userService.createAuthUser(personalInfo.email, personalInfo.password, {
         email: personalInfo.email,
         full_name: personalInfo.fullName,
-        role: 'employee', // Individual users become employees
+        role: 'employee',
         settings: {
           signup_source: 'individual',
           location: personalInfo.location
@@ -165,13 +169,9 @@ export const IndividualSignup: React.FC = () => {
       // Track signup completion
       await signupService.trackSignupEvent('individual_signup_completed', 'individual', 'account_created');
 
-      // Navigate to login with success message
-      navigate('/login', {
-        state: {
-          message: 'Account created successfully! You can now log in with your credentials.',
-          email: personalInfo.email
-        }
-      });
+      // Immediately sign the user in and redirect to dashboard
+      await login(personalInfo.email, personalInfo.password);
+      navigate(ROUTES.protected.dashboard);
 
     } catch (error: any) {
       console.error('Error creating signup:', error);

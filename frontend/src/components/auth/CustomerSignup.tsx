@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { signupService } from '../../services/signupService';
 import { userService } from '../../services/userService';
+import { useAuth } from '../../contexts/AuthContext';
+import { ROUTES } from '../../config/routes';
 
 interface CustomerInfo {
   fullName: string;
@@ -47,6 +49,8 @@ export const CustomerSignup: React.FC = () => {
     companyName: '',
     customerType: ''
   });
+
+  const { login } = useAuth();
 
   const customerTypes = [
     'Existing Customer',
@@ -147,11 +151,11 @@ export const CustomerSignup: React.FC = () => {
         }
       });
 
-      // Create user record immediately without email verification
-      await userService.createUser({
+      // Create auth user + user record
+      await userService.createAuthUser(customerInfo.email, customerInfo.password, {
         email: customerInfo.email,
         full_name: customerInfo.fullName,
-        role: 'customer', // Customer users become customers
+        role: 'customer',
         settings: {
           signup_source: 'customer',
           company_name: customerInfo.companyName,
@@ -162,13 +166,9 @@ export const CustomerSignup: React.FC = () => {
       // Track signup completion
       await signupService.trackSignupEvent('customer_signup_completed', 'customer', 'account_created');
 
-      // Navigate to login with success message
-      navigate('/login', {
-        state: {
-          message: 'Account created successfully! You can now log in with your credentials.',
-          email: customerInfo.email
-        }
-      });
+      // Immediately sign the user in and redirect to dashboard
+      await login(customerInfo.email, customerInfo.password);
+      navigate(ROUTES.protected.dashboard);
 
     } catch (error: any) {
       console.error('Error creating signup:', error);
