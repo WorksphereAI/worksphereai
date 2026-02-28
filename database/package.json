@@ -1,0 +1,14 @@
+{
+  "name": "worksphere-database",
+  "version": "1.0.0",
+  "description": "WorkSphere AI Database Setup",
+  "main": "setup.js",
+  "scripts": {
+    "setup": "node setup.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.5",
+    "dotenv": "^16.3.1"
+  },
+  "type": "commonjs"
+}
