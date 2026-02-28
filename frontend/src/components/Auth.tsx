@@ -101,8 +101,8 @@ export const AuthComponent: React.FC<AuthProps> = ({ onAuth }) => {
                 message: 'text-error-600 text-sm mt-1',
               }
             }}
-            providers={[]}
-            redirectTo={window.location.origin}
+            providers={['google']}
+            redirectTo={import.meta.env.VITE_PROD_URL || window.location.origin}
             view={isSignUp ? 'sign_up' : 'sign_in'}
           />
         </div>
