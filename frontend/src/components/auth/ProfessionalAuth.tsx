@@ -537,6 +537,7 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
           </div>
         </div>
       </div>
+      </div>
     </GoogleOAuthProvider>
   );
 };
