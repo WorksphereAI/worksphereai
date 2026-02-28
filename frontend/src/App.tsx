@@ -123,6 +123,7 @@ export const App: React.FC = () => {
             <Route path="/signin" element={<Navigate to={ROUTES.public.login} replace />} />
             <Route path="/register" element={<Navigate to={ROUTES.public.signup} replace />} />
             <Route path="/verify-email" element={<Navigate to={ROUTES.public.login} replace />} />
+            <Route path="/verify-email/:token" element={<Navigate to={ROUTES.public.login} replace />} />
             <Route path="/verify" element={<Navigate to={ROUTES.public.login} replace />} />
             <Route path="/onboarding" element={<Navigate to={ROUTES.public.login} replace />} />
             <Route path="/setup" element={<Navigate to={ROUTES.public.login} replace />} />

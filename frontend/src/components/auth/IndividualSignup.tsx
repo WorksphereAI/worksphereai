@@ -18,7 +18,7 @@ import {
   Zap
 } from 'lucide-react';
 import { signupService } from '../../services/signupService';
-import { emailService } from '../../services/emailService';
+import { userService } from '../../services/userService';
 
 interface PersonalInfo {
   fullName: string;
@@ -151,25 +151,25 @@ export const IndividualSignup: React.FC = () => {
         }
       });
 
-      // Create email verification
-      const verification = await signupService.createEmailVerification(personalInfo.email, 'signup');
-      
-      // Send verification email
-      await emailService.sendVerificationEmail(
-        personalInfo.email,
-        verification.token,
-        'individual'
-      );
+      // Create user record immediately without email verification
+      await userService.createUser({
+        email: personalInfo.email,
+        full_name: personalInfo.fullName,
+        role: 'employee', // Individual users become employees
+        settings: {
+          signup_source: 'individual',
+          location: personalInfo.location
+        }
+      });
 
       // Track signup completion
-      await signupService.trackSignupEvent('individual_signup_completed', 'individual', 'email_verification');
+      await signupService.trackSignupEvent('individual_signup_completed', 'individual', 'account_created');
 
-      // Navigate to verification page
-      navigate('/verify-email', {
+      // Navigate to login with success message
+      navigate('/login', {
         state: {
-          email: personalInfo.email,
-          message: 'We\'ve sent a verification link to your email. Please check your inbox and click the link to complete your individual signup.',
-          userType: 'individual'
+          message: 'Account created successfully! You can now log in with your credentials.',
+          email: personalInfo.email
         }
       });
 

@@ -19,7 +19,7 @@ import {
   EyeOff
 } from 'lucide-react';
 import { signupService } from '../../services/signupService';
-import { emailService } from '../../services/emailService';
+import { userService } from '../../services/userService';
 
 interface CompanyInfo {
   name: string;
@@ -242,25 +242,28 @@ export const EnterpriseSignup: React.FC = () => {
         }
       });
 
-      // Create email verification
-      const verification = await signupService.createEmailVerification(personalInfo.email, 'signup');
-      
-      // Send verification email
-      await emailService.sendVerificationEmail(
-        personalInfo.email,
-        verification.token,
-        'enterprise'
-      );
+      // Create user record immediately without email verification
+      await userService.createUser({
+        email: personalInfo.email,
+        full_name: personalInfo.fullName,
+        role: 'ceo', // Enterprise users become CEO
+        settings: {
+          signup_source: 'enterprise',
+          organization_name: companyInfo.name,
+          company_size: companyInfo.size,
+          industry: companyInfo.industry,
+          job_title: personalInfo.jobTitle
+        }
+      });
 
       // Track signup completion
-      await signupService.trackSignupEvent('enterprise_signup_completed', 'enterprise', 'email_verification');
+      await signupService.trackSignupEvent('enterprise_signup_completed', 'enterprise', 'account_created');
 
-      // Navigate to verification page
-      navigate('/verify-email', {
+      // Navigate to login with success message
+      navigate('/login', {
         state: {
-          email: personalInfo.email,
-          message: 'We\'ve sent a verification link to your email. Please check your inbox and click the link to complete your enterprise signup.',
-          userType: 'enterprise'
+          message: 'Account created successfully! You can now log in with your credentials.',
+          email: personalInfo.email
         }
       });
 

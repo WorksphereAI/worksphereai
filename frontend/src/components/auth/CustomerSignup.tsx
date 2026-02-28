@@ -19,7 +19,7 @@ import {
   Building2
 } from 'lucide-react';
 import { signupService } from '../../services/signupService';
-import { emailService } from '../../services/emailService';
+import { userService } from '../../services/userService';
 
 interface CustomerInfo {
   fullName: string;
@@ -147,25 +147,26 @@ export const CustomerSignup: React.FC = () => {
         }
       });
 
-      // Create email verification
-      const verification = await signupService.createEmailVerification(customerInfo.email, 'signup');
-      
-      // Send verification email
-      await emailService.sendVerificationEmail(
-        customerInfo.email,
-        verification.token,
-        'customer'
-      );
+      // Create user record immediately without email verification
+      await userService.createUser({
+        email: customerInfo.email,
+        full_name: customerInfo.fullName,
+        role: 'customer', // Customer users become customers
+        settings: {
+          signup_source: 'customer',
+          company_name: customerInfo.companyName,
+          phone: customerInfo.phone
+        }
+      });
 
       // Track signup completion
-      await signupService.trackSignupEvent('customer_signup_completed', 'customer', 'email_verification');
+      await signupService.trackSignupEvent('customer_signup_completed', 'customer', 'account_created');
 
-      // Navigate to verification page
-      navigate('/verify-email', {
+      // Navigate to login with success message
+      navigate('/login', {
         state: {
-          email: customerInfo.email,
-          message: 'We\'ve sent a verification link to your email. Please check your inbox and click the link to access your customer portal.',
-          userType: 'customer'
+          message: 'Account created successfully! You can now log in with your credentials.',
+          email: customerInfo.email
         }
       });
 

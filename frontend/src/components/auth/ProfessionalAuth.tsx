@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { userService } from '../../services/userService';
 import { Building2, Mail, Lock, User, Eye, EyeOff, Check, AlertCircle, Loader2, ArrowRight, Shield, Zap, Globe } from 'lucide-react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 
@@ -147,12 +148,36 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
 
         if (error) throw error;
 
-        if (data.user && !data.session) {
-          setSuccessMessage('Account created! Please check your email to verify your account.');
-        } else if (data.session && data.user) {
-          const userData = await getUserProfile(data.user.id);
-          if (userData) {
-            onAuth(userData);
+        // Create user record immediately without email verification
+        if (data.user) {
+          try {
+            await userService.createUser({
+              email: formData.email,
+              full_name: formData.fullName,
+              role: 'employee', // Default role for professional signup
+              settings: {
+                signup_source: 'professional',
+                company_name: formData.companyName
+              }
+            });
+
+            // Try to sign in the user immediately after account creation
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+              email: formData.email,
+              password: formData.password
+            });
+
+            if (!signInError && signInData.user) {
+              const userProfile = await getUserProfile(signInData.user.id);
+              if (userProfile) {
+                onAuth(userProfile);
+              }
+            } else {
+              setSuccessMessage('Account created successfully! You can now log in.');
+            }
+          } catch (userCreationError) {
+            console.error('Error creating user record:', userCreationError);
+            setSuccessMessage('Account created! Please check your email to verify your account.');
           }
         }
       } else {

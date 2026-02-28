@@ -57,9 +57,6 @@ async function sendEmailThroughBackend(template: EmailTemplate): Promise<void> {
 }
 
 class EmailService {
-  private readonly fromEmail = 'noreply@worksphere.ai';
-  private readonly fromName = 'WorkSphere AI';
-
   // ============================================
   // VERIFICATION EMAILS
   // ============================================
