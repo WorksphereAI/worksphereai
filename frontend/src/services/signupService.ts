@@ -1,6 +1,7 @@
 // src/services/signupService.ts
 import { supabase } from '../lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
+import { userService } from './userService';
 
 export interface SignupAttempt {
   id?: string;
@@ -200,6 +201,14 @@ class SignupService {
           .from('signup_attempts')
           .update({ status: 'verified' })
           .eq('email', verification.email);
+
+        // Create user record after successful email verification
+        try {
+          await this.createUserFromVerifiedSignup(verification.email);
+        } catch (userError) {
+          console.warn('User creation failed after email verification:', userError);
+          // Don't throw - email verification succeeded even if user creation failed
+        }
       }
 
       return true;
@@ -400,6 +409,44 @@ class SignupService {
       );
     } catch (error) {
       console.error('Error completing onboarding:', error);
+      throw error;
+    }
+  }
+
+  // ============================================
+  // USER CREATION FROM SIGNUP
+  // ============================================
+
+  async createUserFromVerifiedSignup(email: string, password?: string): Promise<any> {
+    try {
+      // Get the verified signup attempt
+      const signupAttempt = await this.getSignupAttempt(email);
+      if (!signupAttempt || signupAttempt.status !== 'verified') {
+        throw new Error('No verified signup attempt found');
+      }
+
+      // Create user record
+      const user = await userService.createUserFromSignup(signupAttempt);
+
+      // If password provided, create auth user
+      if (password) {
+        const { authUser } = await userService.createAuthUser(email, password, {
+          email: user.email,
+          full_name: user.full_name,
+          role: user.role,
+          organization_id: user.organization_id,
+          department_id: user.department_id
+        });
+
+        // Link auth to user
+        await userService.linkAuthToUser(authUser.id, user);
+
+        return { user, authUser };
+      }
+
+      return { user };
+    } catch (error) {
+      console.error('Error creating user from verified signup:', error);
       throw error;
     }
   }

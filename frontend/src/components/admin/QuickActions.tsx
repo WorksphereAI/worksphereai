@@ -1,18 +1,12 @@
 // src/components/admin/QuickActions.tsx
 import React from 'react';
 import {
+  Settings,
   Users,
   CreditCard,
-  Bell,
-  Shield,
-  Settings,
   Mail,
-  FileText,
-  BarChart3,
-  Download,
-  RefreshCw,
-  PlusCircle,
-  AlertTriangle
+  Shield,
+  BarChart3
 } from 'lucide-react';
 
 export const QuickActions: React.FC = () => {

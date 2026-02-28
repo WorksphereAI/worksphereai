@@ -1,23 +1,18 @@
 // src/components/admin/AdvancedAnalytics.tsx
 import React, { useState, useEffect } from 'react';
 import {
-  BarChart3,
   TrendingUp,
-  Users,
-  DollarSign,
   Activity,
   Download,
-  Calendar,
-  Filter,
-  PieChart,
-  LineChart
+  DollarSign,
+  Users
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 
 export const AdvancedAnalytics: React.FC = () => {
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
+  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'quarter'>('month');
 
   useEffect(() => {
     loadAnalytics();
@@ -57,7 +52,6 @@ export const AdvancedAnalytics: React.FC = () => {
             <option value="week">Last 7 Days</option>
             <option value="month">Last 30 Days</option>
             <option value="quarter">Last 90 Days</option>
-            <option value="year">Last Year</option>
           </select>
           <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2">
             <Download size={16} />

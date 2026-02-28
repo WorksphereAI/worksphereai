@@ -2,25 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import {
   CreditCard,
-  TrendingUp,
+  DollarSign,
   Users,
   HardDrive,
   Wifi,
   CheckCircle,
   AlertCircle,
   Clock,
-  Download,
-  ExternalLink,
-  Settings,
-  Zap,
+  Activity,
+  Calendar,
+  BarChart3,
   Crown,
   Star,
   ArrowUpRight,
-  ArrowDownRight,
-  Calendar,
-  DollarSign,
-  Activity,
-  BarChart3
+  Download,
+  Settings
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { subscriptionService, type SubscriptionPlan, type OrganizationSubscription, type PaymentMethod, type BusinessMetric } from '../../services/subscriptionService';
@@ -30,10 +26,10 @@ export const BillingDashboard: React.FC = () => {
   const [subscription, setSubscription] = useState<OrganizationSubscription | null>(null);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
-  const [businessMetrics, setBusinessMetrics] = useState<BusinessMetric[]>([]);
+  const [, setBusinessMetrics] = useState<BusinessMetric[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [, setShowUpgradeModal] = useState(false);
+  const [, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
     loadBillingData();

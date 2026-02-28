@@ -49,6 +49,31 @@ export interface OrganizationSubscription {
   mobile_money_phone?: string;
 }
 
+export interface PaymentMethod {
+  id: string;
+  organization_id: string;
+  stripe_payment_method_id: string;
+  type: string;
+  provider: string;
+  last4?: string;
+  brand?: string;
+  expiry_month?: number;
+  expiry_year?: number;
+  is_default: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BusinessMetric {
+  id: string;
+  organization_id: string;
+  metric_type: string;
+  metric_value: number;
+  metric_date: string;
+  created_at: string;
+}
+
 interface CheckoutSessionResponse {
   id: string;
   url: string | null;
@@ -517,15 +542,58 @@ export class SubscriptionService {
 
     if (error) {
       console.error('Error fetching usage metrics:', error);
-      throw new Error('Failed to fetch usage metrics');
+      return [];
     }
 
     return data || [];
   }
 
   /**
-   * Track usage for billing
+   * Get organization subscription
    */
+  async getOrganizationSubscription(organizationId: string): Promise<OrganizationSubscription | null> {
+    const { data, error } = await supabase
+      .from('organization_subscriptions')
+      .select('*')
+      .eq('organization_id', organizationId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching organization subscription:', error);
+      return null;
+    }
+
+    return data;
+  }
+
+  /**
+   * Get payment methods
+   */
+  async getPaymentMethods(organizationId: string): Promise<PaymentMethod[]> {
+    const { data, error } = await supabase
+      .from('payment_methods')
+      .select('*')
+      .eq('organization_id', organizationId)
+      .eq('is_active', true);
+
+    if (error) {
+      console.error('Error fetching payment methods:', error);
+      return [];
+    }
+
+    return data || [];
+  }
+
+  /**
+   * Get business metrics (alias for getUsageMetrics)
+   */
+  async getBusinessMetrics(organizationId?: string): Promise<any[]> {
+    if (!organizationId) return [];
+    return this.getUsageMetrics(organizationId);
+  }
+
+  /**
+   * Track usage for billing
   async trackUsage(
     organizationId: string,
     metricType: string,

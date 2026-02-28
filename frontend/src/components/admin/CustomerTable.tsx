@@ -1,19 +1,8 @@
 // src/components/admin/CustomerTable.tsx
 import React, { useState, useEffect } from 'react';
 import {
-  Search,
   MoreVertical,
-  Mail,
-  Phone,
-  Calendar,
-  Activity,
-  DollarSign,
-  Users,
-  Shield,
   AlertTriangle,
-  CheckCircle,
-  XCircle,
-  Edit,
   Eye
 } from 'lucide-react';
 import { adminService, type Customer } from '../../services/adminService';

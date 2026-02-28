@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react'
-import { 
-  Plus, 
-  Calendar, 
-  User, 
-  Flag, 
-  CheckCircle, 
-  Clock, 
+import React, { useState, useEffect } from 'react';
+import {
+  Calendar,
+  User,
+  Clock,
   AlertCircle,
-  Filter,
+  Plus,
   Search,
+  CheckCircle,
+  Flag,
   MoreVertical
-} from 'lucide-react'
+} from 'lucide-react';
 import { supabase } from '../lib/supabase'
 
 interface Task {

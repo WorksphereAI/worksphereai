@@ -305,10 +305,10 @@ export const ProductivityMetrics: React.FC<ProductivityMetricsProps> = ({
                 .filter(dept => dept.taskCompletionRate >= 85)
                 .sort((a, b) => b.engagementScore - a.engagementScore)
                 .slice(0, 3)
-                .map((dept, index) => (
+                .map((dept, _index) => (
                   <div key={dept.departmentName} className="flex items-center justify-between p-2 bg-green-50 rounded">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-green-600">#{index + 1}</span>
+                      <span className="text-lg font-bold text-green-600">#{_index + 1}</span>
                       <span className="text-sm font-medium">{dept.departmentName}</span>
                     </div>
                     <span className="text-sm text-green-600 font-medium">
@@ -326,7 +326,7 @@ export const ProductivityMetrics: React.FC<ProductivityMetricsProps> = ({
                 .filter(dept => dept.taskCompletionRate < 70 || dept.engagementScore < 50)
                 .sort((a, b) => a.taskCompletionRate - b.taskCompletionRate)
                 .slice(0, 3)
-                .map((dept, index) => (
+                .map((dept, _index) => (
                   <div key={dept.departmentName} className="flex items-center justify-between p-2 bg-orange-50 rounded">
                     <div className="flex items-center gap-2">
                       <AlertCircle className="text-orange-500" size={16} />

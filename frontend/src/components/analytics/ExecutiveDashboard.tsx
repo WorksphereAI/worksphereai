@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { 
-  TrendingUp, Users, MessageSquare, CheckCircle, 
-  Clock, FileText, Download, Calendar 
-} from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { 
-  LineChart, Line, BarChart, Bar, PieChart, Pie,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
-  ResponsiveContainer, Cell 
-} from 'recharts';
+import React, { useState, useEffect } from 'react'
+import {
+  MessageSquare,
+  FileText,
+  Users,
+  TrendingUp,
+  Clock,
+  Download,
+  CheckCircle
+} from 'lucide-react'
+import { LineChart, Line, BarChart, Bar, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts'
+import { supabase } from '../../lib/supabase'
 
 interface DashboardMetrics {
   activeUsers: number;
@@ -42,7 +43,7 @@ export const ExecutiveDashboard: React.FC = () => {
   const fetchMetrics = async () => {
     try {
       const { data, error } = await supabase
-        .rpc('get_executive_dashboard', { time_range: time_range });
+        .rpc('get_executive_dashboard', { timeRange: timeRange });
       
       if (!error && data) {
         setMetrics(data);
@@ -79,38 +80,38 @@ export const ExecutiveDashboard: React.FC = () => {
     switch (newEvent.event_type) {
       case 'login':
         // Update active users count
-        setMetrics(prev => ({
+        setMetrics(prev => prev ? ({
           ...prev,
-          activeUsers: (prev?.activeUsers || 0) + 1
-        }));
+          activeUsers: (prev.activeUsers || 0) + 1
+        }) : null);
         break;
       case 'message_sent':
         // Update message count
-        setMetrics(prev => ({
+        setMetrics(prev => prev ? ({
           ...prev,
-          totalMessages: (prev?.totalMessages || 0) + 1
-        }));
+          totalMessages: (prev.totalMessages || 0) + 1
+        }) : null);
         break;
       case 'task_completed':
         // Update tasks completed
-        setMetrics(prev => ({
+        setMetrics(prev => prev ? ({
           ...prev,
-          tasksCompleted: (prev?.tasksCompleted || 0) + 1
-        }));
+          tasksCompleted: (prev.tasksCompleted || 0) + 1
+        }) : null);
         break;
       case 'approval_completed':
         // Update pending approvals (decrement)
-        setMetrics(prev => ({
+        setMetrics(prev => prev ? ({
           ...prev,
-          approvalsPending: Math.max(0, (prev?.approvalsPending || 0) - 1)
-        }));
+          approvalsPending: Math.max(0, (prev.approvalsPending || 0) - 1)
+        }) : null);
         break;
       case 'document_uploaded':
         // Update documents uploaded
-        setMetrics(prev => ({
+        setMetrics(prev => prev ? ({
           ...prev,
-          documentsUploaded: (prev?.documentsUploaded || 0) + 1
-        }));
+          documentsUploaded: (prev.documentsUploaded || 0) + 1
+        }) : null);
         break;
     }
   };

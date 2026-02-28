@@ -1,14 +1,12 @@
 // src/components/admin/AlertsPanel.tsx
 import React, { useState, useEffect } from 'react';
 import {
-  Bell,
   AlertTriangle,
+  Bell,
   CheckCircle,
   XCircle,
   Info,
-  Clock,
-  Check,
-  Eye
+  Check
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 

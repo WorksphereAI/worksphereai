@@ -16,8 +16,6 @@ import {
 import { supabase } from '../lib/supabase'
 import { Messaging } from './Messaging'
 import { Tasks } from './Tasks'
-import { OrganizationStructure } from './OrganizationStructure'
-import { Documents } from './Documents'
 import { DocumentManager } from './documents/DocumentManager'
 import { Approvals } from './Approvals'
 import { ExecutiveDashboard } from './analytics/ExecutiveDashboard'
@@ -31,7 +29,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   const [departments, setDepartments] = useState<any[]>([])
   const [recentMessages, setRecentMessages] = useState<any[]>([])
   const [pendingTasks, setPendingTasks] = useState<any[]>([])
-  const [notifications, setNotifications] = useState(0)
+  const [notifications] = useState(0)
   const [currentView, setCurrentView] = useState<'dashboard' | 'messages' | 'tasks' | 'organization' | 'approvals' | 'documents' | 'analytics'>('dashboard')
   const [selectedChannel, setSelectedChannel] = useState<any>(null)
 
@@ -308,7 +306,7 @@ const CEOView: React.FC<{ departments: any[] }> = ({ departments }) => (
 )
 
 // Manager View - Team Focus
-const ManagerView: React.FC<{ departments: any[], user: any }> = ({ departments }) => (
+const ManagerView: React.FC<{ departments: any[], user: any }> = ({ }) => (
   <div>
     <h2 className="text-2xl font-bold text-gray-900 mb-6">Team Management</h2>
     

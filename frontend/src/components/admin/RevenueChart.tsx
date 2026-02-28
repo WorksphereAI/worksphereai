@@ -3,8 +3,7 @@ import React from 'react';
 import {
   TrendingUp,
   TrendingDown,
-  DollarSign,
-  Calendar
+  DollarSign
 } from 'lucide-react';
 
 interface RevenueChartProps {

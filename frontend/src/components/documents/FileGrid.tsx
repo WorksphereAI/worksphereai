@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   File, FileText, Image, FileSpreadsheet, 
-  MoreVertical, Download, Trash2, Share2, 
-  Star, Clock, Tag, Lock, Unlock
+  MoreVertical, Download, Share2, Lock
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
@@ -34,7 +33,7 @@ export const FileGrid: React.FC<FileGridProps> = ({
   const [files, setFiles] = useState<FileItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     fetchFiles();

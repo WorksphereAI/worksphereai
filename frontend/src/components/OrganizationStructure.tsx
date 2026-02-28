@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import { 
   Building2, 
   Users, 
-  ChevronDown, 
   ChevronRight, 
-  UserPlus, 
-  Settings,
-  Edit,
-  Trash2,
-  Plus
-} from 'lucide-react'
+  ChevronDown, 
+  Plus,
+  Settings
+} from 'lucide-react';
 import { supabase } from '../lib/supabase'
 
 interface Department {

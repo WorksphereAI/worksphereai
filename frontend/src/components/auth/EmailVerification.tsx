@@ -1,6 +1,6 @@
 // src/components/auth/EmailVerification.tsx
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Mail,
   CheckCircle,
@@ -11,13 +11,12 @@ import {
   Loader2
 } from 'lucide-react';
 import { signupService } from '../../services/signupService';
-import { emailService } from '../../services/emailService';
 
 export const EmailVerification: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [verifying, setVerifying] = useState(false);
+  const [, setVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resendDisabled, setResendDisabled] = useState(false);

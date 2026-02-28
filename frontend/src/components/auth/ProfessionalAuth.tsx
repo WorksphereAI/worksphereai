@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { Building2, Mail, Lock, User, Eye, EyeOff, Check, AlertCircle, Loader2, ArrowRight, Shield, Zap, Globe, ArrowLeft } from 'lucide-react';
+import { Building2, Mail, Lock, User, Eye, EyeOff, Check, AlertCircle, Loader2, ArrowRight, Shield, Zap, Globe } from 'lucide-react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 
 interface AuthProps {
@@ -234,9 +234,12 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
     }
   };
 
-  return (
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'your-google-client-id'}>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+  // Only render Google OAuth if client ID is properly configured
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const isGoogleConfigured = googleClientId && googleClientId !== 'your-google-client-id-here';
+
+  const renderAuthForm = () => (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
@@ -317,24 +320,26 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
                 </div>
 
                 {/* Google Sign In */}
-                <div className="mb-6">
-                  <GoogleLogin
-                    onSuccess={(credentialResponse) => {
-                      if (credentialResponse.credential) {
-                        handleGoogleAuth(credentialResponse.credential);
-                      }
-                    }}
-                    onError={() => {
-                      setErrors({ general: 'Google authentication failed' });
-                    }}
-                    text={isSignUp ? 'signup_with' : 'signin_with'}
-                    width="100%"
-                    theme="filled_blue"
-                    size="large"
-                    shape="rectangular"
-                    logo_alignment="left"
-                  />
-                </div>
+                {isGoogleConfigured && (
+                  <div className="mb-6">
+                    <GoogleLogin
+                      onSuccess={(credentialResponse) => {
+                        if (credentialResponse.credential) {
+                          handleGoogleAuth(credentialResponse.credential);
+                        }
+                      }}
+                      onError={() => {
+                        setErrors({ general: 'Google authentication failed' });
+                      }}
+                      text={isSignUp ? 'signup_with' : 'signin_with'}
+                      width="100%"
+                      theme="filled_blue"
+                      size="large"
+                      shape="rectangular"
+                      logo_alignment="left"
+                    />
+                  </div>
+                )}
 
                 {/* Divider */}
                 <div className="relative mb-6">
@@ -567,7 +572,17 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
           </div>
         </div>
       </div>
-      </div>
-    </GoogleOAuthProvider>
+    </div>
   );
+
+  // Render with or without Google OAuth provider
+  if (isGoogleConfigured) {
+    return (
+      <GoogleOAuthProvider clientId={googleClientId}>
+        {renderAuthForm()}
+      </GoogleOAuthProvider>
+    );
+  }
+
+  return renderAuthForm();
 };

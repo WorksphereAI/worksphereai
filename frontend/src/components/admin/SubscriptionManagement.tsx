@@ -1,23 +1,17 @@
 // src/components/admin/SubscriptionManagement.tsx
 import React, { useState, useEffect } from 'react';
 import {
-  CreditCard,
-  DollarSign,
-  Calendar,
-  RefreshCw,
-  AlertCircle,
-  CheckCircle,
-  XCircle,
+  Eye,
   Edit,
-  Eye
+  XCircle
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 
 export const SubscriptionManagement: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
+  const [, setTotal] = useState(0);
+  const [page] = useState(1);
   const [filters, setFilters] = useState({
     status: '',
     plan: ''

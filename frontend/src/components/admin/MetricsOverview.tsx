@@ -2,13 +2,11 @@
 import React from 'react';
 import {
   Users,
-  Building2,
-  CreditCard,
   TrendingUp,
   DollarSign,
-  Activity,
-  Clock,
-  AlertCircle
+  Building2,
+  CreditCard,
+  Clock
 } from 'lucide-react';
 import type { AdminMetrics } from '../../services/adminService';
 

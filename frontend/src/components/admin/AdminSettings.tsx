@@ -89,7 +89,7 @@ export const AdminSettings: React.FC = () => {
     }
   };
 
-  const handleDeleteAnnouncement = async (id: string) => {
+  const handleDeleteAnnouncement = async (_id: string) => {
     if (confirm('Are you sure you want to delete this announcement?')) {
       // Delete announcement from database
       await new Promise(resolve => setTimeout(resolve, 1000));

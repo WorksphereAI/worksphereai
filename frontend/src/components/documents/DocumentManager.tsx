@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Search, Grid, List, Plus, Filter, 
-  Upload, FolderPlus, Download, Share2, Trash2 
+  Search, Grid, List, Upload, FolderPlus, Download, Share2, Trash2 
 } from 'lucide-react';
 import { FolderTree } from './FolderTree';
 import { FileGrid } from './FileGrid';
@@ -10,7 +9,7 @@ export const DocumentManager: React.FC = () => {
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
+  const [selectedFiles] = useState<Set<string>>(new Set());
 
   const handleFileSelect = (file: any) => {
     // Open file preview or download

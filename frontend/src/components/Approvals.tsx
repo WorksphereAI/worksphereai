@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  FileText, 
-  Calendar, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
-  AlertCircle,
+import {
+  CheckCircle,
+  Clock,
+  Calendar,
+  FileText,
+  Filter,
   User,
   Building2,
-  Send,
   Eye,
-  Filter
+  XCircle
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
@@ -21,34 +19,18 @@ interface ApprovalRequest {
   description?: string
   requester_id: string
   organization_id: string
-  department_id?: string
-  status: 'pending' | 'in_review' | 'approved' | 'rejected' | 'cancelled'
-  priority: 'low' | 'medium' | 'high' | 'urgent'
-  data: Record<string, any>
-  attachments?: string[]
+  status: 'pending' | 'approved' | 'rejected'
+  priority: 'low' | 'medium' | 'high'
+  amount?: number
   created_at: string
   updated_at: string
+  data?: any
   requester?: {
     full_name: string
     avatar_url?: string
   }
   department?: {
     name: string
-  }
-}
-
-interface ApprovalStep {
-  id: string
-  request_id: string
-  approver_id: string
-  step_order: number
-  status: 'pending' | 'approved' | 'rejected' | 'skipped'
-  comments?: string
-  action_date?: string
-  due_date?: string
-  approver?: {
-    full_name: string
-    avatar_url?: string
   }
 }
 
@@ -92,10 +74,11 @@ export const Approvals: React.FC<ApprovalsProps> = ({ user }) => {
           department:department_id (name)
         `)
         .in('id', 
-          supabase
+          (await supabase
             .from('approval_steps')
             .select('request_id')
             .eq('approver_id', user.id)
+          ).data?.map(step => step.request_id) || []
         )
         .order('created_at', { ascending: false })
 
@@ -121,10 +104,10 @@ export const Approvals: React.FC<ApprovalsProps> = ({ user }) => {
         },
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            setRequests(prev => [payload.new, ...prev])
+            setRequests(prev => [payload.new as any, ...prev])
           } else if (payload.eventType === 'UPDATE') {
             setRequests(prev => prev.map(req => 
-              req.id === payload.new.id ? payload.new : req
+              req.id === payload.new.id ? payload.new as any : req
             ))
           } else if (payload.eventType === 'DELETE') {
             setRequests(prev => prev.filter(req => req.id !== payload.old.id))
@@ -149,10 +132,10 @@ export const Approvals: React.FC<ApprovalsProps> = ({ user }) => {
         },
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            setMyApprovals(prev => [payload.new, ...prev])
+            setMyApprovals(prev => [payload.new as any, ...prev])
           } else if (payload.eventType === 'UPDATE') {
             setMyApprovals(prev => prev.map(req => 
-              req.id === payload.new.id ? payload.new : req
+              req.id === payload.new.id ? payload.new as any : req
             ))
           } else if (payload.eventType === 'DELETE') {
             setMyApprovals(prev => prev.filter(req => req.id !== payload.old.id))
@@ -617,7 +600,7 @@ export const Approvals: React.FC<ApprovalsProps> = ({ user }) => {
                       rows={3}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-worksphere-500"
                       placeholder="Add comments for your decision..."
-                      onChange={(e) => {
+                      onChange={(_e) => {
                         // Store comments for approval
                       }}
                     />

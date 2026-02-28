@@ -14,7 +14,6 @@ import {
   Cloud,
   MessageSquare,
   TrendingUp,
-  Filter,
   Search
 } from 'lucide-react';
 import { integrationHub, type IntegrationInstance, type MarketplaceIntegration } from '../../services/integrationHubService';

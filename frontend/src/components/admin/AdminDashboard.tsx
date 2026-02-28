@@ -1,24 +1,19 @@
 // src/components/admin/AdminDashboard.tsx
 import React, { useState, useEffect } from 'react';
 import {
-  LayoutDashboard,
   Users,
-  CreditCard,
-  Activity,
-  Settings,
-  Bell,
-  Shield,
   TrendingUp,
   AlertTriangle,
   CheckCircle,
   XCircle,
   RefreshCw,
   Download,
-  Calendar,
-  Filter,
-  Search
+  Shield,
+  LayoutDashboard,
+  CreditCard,
+  Settings
 } from 'lucide-react';
-import { adminService, AdminMetrics, SystemHealth } from '../../services/adminService';
+import { adminService, type AdminMetrics, type SystemHealth } from '../../services/adminService';
 import { supabase } from '../../lib/supabase';
 import { MetricsOverview } from './MetricsOverview';
 import { RevenueChart } from './RevenueChart';
@@ -221,7 +216,7 @@ export const AdminDashboard: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Revenue Chart - Takes 2 columns */}
               <div className="lg:col-span-2">
-                <RevenueChart data={metrics?.revenue} timeRange={timeRange} />
+                <RevenueChart data={metrics?.revenue || { daily: [], monthly: [], byPlan: [] }} timeRange={timeRange} />
               </div>
 
               {/* System Status & Alerts - Takes 1 column */}

@@ -1,5 +1,5 @@
 // src/components/auth/ProtectedRoute.tsx
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -18,7 +18,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredOrganization = false,
   redirectTo = '/login',
 }) => {
-  const { isAuthenticated, loading, userRole, hasRole, hasPermission, organizationId } = useAuth();
+  const { isAuthenticated, loading, hasRole, hasPermission, organizationId } = useAuth();
   const location = useLocation();
 
   if (loading) {

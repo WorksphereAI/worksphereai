@@ -45,7 +45,7 @@ export const EnterpriseSignup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [successMessage, setSuccessMessage] = useState('');
+  const [] = useState('');
 
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     name: '',
@@ -198,7 +198,7 @@ export const EnterpriseSignup: React.FC = () => {
 
     try {
       // Check if company name is available
-      const isAvailable = await signupService.isEmailAvailable(`${companyInfo.name.toLowerCase().replace(/\s+/g, '')}@company.com`);
+      await signupService.isEmailAvailable(`${companyInfo.name.toLowerCase().replace(/\s+/g, '')}@company.com`);
       
       // Track step completion
       await signupService.trackSignupEvent('enterprise_company_info_completed', 'enterprise', 'personal_info');

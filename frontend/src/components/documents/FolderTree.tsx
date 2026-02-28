@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, ChevronDown, Folder, FolderOpen, MoreVertical, Plus } from 'lucide-react';
+import { ChevronRight, ChevronDown, Folder, FolderOpen, Plus } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface Folder {
@@ -22,7 +22,6 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
 }) => {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchFolders();
@@ -56,7 +55,6 @@ export const FolderTree: React.FC<FolderTreeProps> = ({
 
       setFolders(rootFolders);
     }
-    setLoading(false);
   };
 
   const toggleFolder = (folderId: string) => {

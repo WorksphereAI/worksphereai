@@ -2,21 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import {
   Search,
-  Filter,
   MoreVertical,
   Mail,
-  Phone,
   Calendar,
   Activity,
-  DollarSign,
-  Users,
-  Shield,
   AlertTriangle,
-  CheckCircle,
   XCircle,
   Edit,
-  Trash2,
-  Eye
+  Eye,
+  Download,
+  CreditCard
 } from 'lucide-react';
 import { adminService, type Customer } from '../../services/adminService';
 

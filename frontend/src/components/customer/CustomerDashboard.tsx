@@ -1,20 +1,16 @@
 // src/components/customer/CustomerDashboard.tsx
 import React, { useState, useEffect } from 'react';
 import {
-  Ticket,
-  MessageSquare,
-  FileText,
-  BookOpen,
   Clock,
-  CheckCircle,
-  AlertCircle,
-  Plus,
   Search,
-  Filter,
-  Download,
-  LogOut,
+  Plus,
   User,
-  Settings
+  LogOut,
+  Ticket,
+  CheckCircle,
+  FileText,
+  MessageSquare,
+  BookOpen
 } from 'lucide-react';
 import { customerPortal, type SupportTicket, type KnowledgeBaseArticle } from '../../services/customerPortalService';
 import { supabase } from '../../lib/supabase';

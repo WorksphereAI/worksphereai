@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Zap,
   Plus,
-  Settings,
   Trash2,
   Play,
   Pause,
@@ -15,7 +14,6 @@ import {
   EyeOff,
   RefreshCw,
   Globe,
-  Shield,
   Activity
 } from 'lucide-react';
 import { integrationHub, type WebhookEndpoint } from '../../services/integrationHubService';

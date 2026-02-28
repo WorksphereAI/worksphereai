@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Activity, Users, Clock, TrendingUp } from 'lucide-react';
+import { Calendar, Activity, Clock, TrendingUp } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface HeatmapData {
@@ -158,7 +158,7 @@ export const UserActivityHeatmap: React.FC<UserActivityHeatmapProps> = ({
           <div className="text-2xl font-bold text-green-600">
             {hourLabels[
               heatmapData.reduce((maxHour, d) => 
-                d.activity_count > heatmapData.find(md => md.hour === maxHour)?.activity_count 
+                d.activity_count > (heatmapData.find(md => md.hour === maxHour)?.activity_count || 0) 
                   ? d.hour 
                   : maxHour, 0
               )
@@ -277,7 +277,7 @@ export const UserActivityHeatmap: React.FC<UserActivityHeatmapProps> = ({
               year: 'numeric', 
               month: 'long', 
               day: 'numeric' 
-            })} - {hourLabels[selectedHour]}
+            })} - {hourLabels[selectedHour || 0]}
           </h3>
           
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">

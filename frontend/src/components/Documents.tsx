@@ -5,20 +5,14 @@ import {
   Upload, 
   Search, 
   Download, 
-  MoreVertical, 
   Plus, 
   Grid, 
-  List, 
-  Filter,
+  List,
   Eye,
-  Edit,
   Trash2,
   Clock,
   Users,
-  Share2,
-  Star,
   History,
-  Tag,
   XCircle
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
