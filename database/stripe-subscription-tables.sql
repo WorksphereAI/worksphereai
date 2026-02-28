@@ -89,6 +89,9 @@ ALTER TABLE payment_methods ENABLE ROW LEVEL SECURITY;
 ALTER TABLE usage_metrics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Organizations can view their invoices" ON subscription_invoices;
+
 -- RLS Policies for stripe_checkout_sessions
 CREATE POLICY "Organizations can view their checkout sessions" ON stripe_checkout_sessions
   FOR SELECT USING (
