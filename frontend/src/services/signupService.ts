@@ -410,22 +410,26 @@ class SignupService {
 
   async trackSignupEvent(
     eventType: string,
-    userType?: string,
-    stepName?: string,
+    userType: string,
+    stepName: string,
     metadata?: Record<string, any>
   ): Promise<void> {
     try {
-      await supabase
-        .from('signup_analytics')
-        .insert({
-          event_type: eventType,
-          user_type: userType,
-          step_name: stepName,
-          metadata: metadata || {},
-          ip_address: null, // Would need to get from request
-          user_agent: navigator.userAgent,
-          referrer: document.referrer
-        });
+      // TODO: Implement analytics tracking when signup_analytics table is available
+      console.log('Analytics Event:', { eventType, userType, stepName, metadata });
+      
+      // Temporarily disabled until signup_analytics table is created
+      // await supabase
+      //   .from('signup_analytics')
+      //   .insert({
+      //     event_type: eventType,
+      //     user_type: userType,
+      //     step_name: stepName,
+      //     metadata: metadata || {},
+      //     ip_address: null, // Would need to get from request
+      //     user_agent: navigator.userAgent,
+      //     referrer: document.referrer
+      //   });
     } catch (error) {
       console.error('Error tracking signup event:', error);
       // Don't throw - analytics failures shouldn't break the app
@@ -497,33 +501,44 @@ class SignupService {
 
   async getSignupStats(timeframe: 'day' | 'week' | 'month' = 'week'): Promise<any> {
     try {
-      const { data, error } = await supabase
-        .from('signup_analytics')
-        .select('*')
-        .eq('event_type', 'signup_started')
-        .gte('created_at', this.getTimeframeDate(timeframe))
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const stats = {
-        total: data?.length || 0,
-        by_type: {} as Record<string, number>,
-        by_day: {} as Record<string, number>
+      // TODO: Implement stats when signup_analytics table is available
+      console.log('Getting signup stats for timeframe:', timeframe);
+      
+      // Return mock data for now
+      return {
+        total: 0,
+        by_type: {},
+        by_day: {}
       };
+      
+      // Temporarily disabled until signup_analytics table is created
+      // const { data, error } = await supabase
+      //   .from('signup_analytics')
+      //   .select('*')
+      //   .eq('event_type', 'signup_started')
+      //   .gte('created_at', this.getTimeframeDate(timeframe))
+      //   .order('created_at', { ascending: false });
 
-      data?.forEach(item => {
-        // Count by user type
-        if (item.user_type) {
-          stats.by_type[item.user_type] = (stats.by_type[item.user_type] || 0) + 1;
-        }
+      // if (error) throw error;
 
-        // Count by day
-        const day = new Date(item.created_at).toLocaleDateString();
-        stats.by_day[day] = (stats.by_day[day] || 0) + 1;
-      });
+      // const stats = {
+      //   total: data?.length || 0,
+      //   by_type: {} as Record<string, number>,
+      //   by_day: {} as Record<string, number>
+      // };
 
-      return stats;
+      // data?.forEach(item => {
+      //   // Count by user type
+      //   if (item.user_type) {
+      //     stats.by_type[item.user_type] = (stats.by_type[item.user_type] || 0) + 1;
+      //   }
+
+      //   // Count by day
+      //   const day = new Date(item.created_at).toLocaleDateString();
+      //   stats.by_day[day] = (stats.by_day[day] || 0) + 1;
+      // });
+
+      // return stats;
     } catch (error) {
       console.error('Error getting signup stats:', error);
       return { total: 0, by_type: {}, by_day: {} };
