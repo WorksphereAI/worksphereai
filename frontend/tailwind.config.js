@@ -9,25 +9,25 @@ export default {
       colors: {
         // Primary brand colors
         brand: {
-          50: '#EFF6FF',
-          100: '#DBEAFE',
-          500: '#2563EB',
-          600: '#1D4ED8',
-          700: '#1E40AF',
+          50: '#F2F2F7',
+          100: '#E5E5EA',
+          500: '#007AFF',
+          600: '#0060E6',
+          700: '#0050CC',
         },
         // Neutral colors
         gray: {
           25: '#FCFCFD',
-          50: '#F8FAFC',
-          100: '#F1F5F9',
-          200: '#E2E8F0',
-          300: '#CBD5E1',
-          400: '#94A3B8',
-          500: '#64748B',
-          600: '#475569',
-          700: '#334155',
-          800: '#1E293B',
-          900: '#0F172A',
+          50: '#F9F9F9',
+          100: '#F2F2F7',
+          200: '#E5E5EA',
+          300: '#D1D1D6',
+          400: '#C7C7CC',
+          500: '#AEAEB2',
+          600: '#8E8E93',
+          700: '#636366',
+          800: '#3A3A3C',
+          900: '#1C1C1E',
         },
         // Semantic colors
         success: {
@@ -47,7 +47,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        // Use Apple system stack to match apple-design-system.css
+        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         'xs': ['12px', { lineHeight: '16px' }],
