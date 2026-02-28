@@ -231,7 +231,7 @@ export const CustomerSignup: React.FC = () => {
                       type="text"
                       value={customerInfo.fullName}
                       onChange={(e) => setCustomerInfo({ ...customerInfo, fullName: e.target.value })}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 ${
                         errors.fullName ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="John Doe"
@@ -256,7 +256,7 @@ export const CustomerSignup: React.FC = () => {
                       type="email"
                       value={customerInfo.email}
                       onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 ${
                         errors.email ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="john@company.com"
@@ -281,7 +281,7 @@ export const CustomerSignup: React.FC = () => {
                       type="text"
                       value={customerInfo.companyName}
                       onChange={(e) => setCustomerInfo({ ...customerInfo, companyName: e.target.value })}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 ${
                         errors.companyName ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="Acme Corporation"
@@ -305,7 +305,7 @@ export const CustomerSignup: React.FC = () => {
                     <select
                       value={customerInfo.customerType}
                       onChange={(e) => setCustomerInfo({ ...customerInfo, customerType: e.target.value })}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none ${
+                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none text-gray-900 ${
                         errors.customerType ? 'border-red-500' : 'border-gray-300'
                       }`}
                       disabled={loading}
@@ -335,7 +335,7 @@ export const CustomerSignup: React.FC = () => {
                       type="tel"
                       value={customerInfo.phone}
                       onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 ${
                         errors.phone ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="+250 788 123 456"
@@ -360,7 +360,7 @@ export const CustomerSignup: React.FC = () => {
                       type={showPassword ? 'text' : 'password'}
                       value={customerInfo.password}
                       onChange={(e) => setCustomerInfo({ ...customerInfo, password: e.target.value })}
-                      className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                      className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 ${
                         errors.password ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="••••••••"
@@ -394,7 +394,7 @@ export const CustomerSignup: React.FC = () => {
                       type={showConfirmPassword ? 'text' : 'password'}
                       value={customerInfo.confirmPassword}
                       onChange={(e) => setCustomerInfo({ ...customerInfo, confirmPassword: e.target.value })}
-                      className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                      className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 ${
                         errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="••••••••"
