@@ -1,6 +1,11 @@
 # Dependencies
 node_modules/
 */node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
 
 # Environment variables
 .env
@@ -8,52 +13,70 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*.local
 
 # Build outputs
 dist/
 build/
 */dist/
 */build/
+.next/
+out/
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
+# Testing
+coverage/
+*.lcov
+.nyc_output
+jest/
+test-results/
+playwright-report/
 
 # Runtime data
 pids
 *.pid
 *.seed
 *.pid.lock
+*.pid
 
-# Coverage directory used by tools like istanbul
-coverage/
-*.lcov
+# Logs
+logs
+*.log
 
-# nyc test coverage
-.nyc_output
-
-# IDE
+# IDE and Editors
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.DS_Store
+Thumbs.db
+._*
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Temporary folders
 tmp/
 temp/
+.tmp/
+.cache/
 
 # Database
 *.sqlite
+*.sqlite3
 *.db
+*.db-journal
 
 # Supabase
 .supabase/
+supabase/.branches/
+supabase/.temp/
 
 # Cloudinary
 cloudinary://*
@@ -64,3 +87,45 @@ mobile/.flutter-plugins
 mobile/.flutter-plugins-dependencies
 mobile/.packages
 mobile/pubspec.lock
+mobile/android/app/build/
+mobile/ios/build/
+
+# TypeScript
+*.tsbuildinfo
+
+# Vite
+.vite/
+
+# ESLint
+.eslintcache
+
+# Prettier
+.prettierignore
+
+# Storybook
+storybook-static/
+
+# Netlify
+.netlify/
+
+# Vercel
+.vercel
+
+# Local development
+.local/
+.cache/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Lock files (keep package-lock.json but ignore others)
+yarn.lock
+pnpm-lock.yaml
+
+# Misc
+*.tgz
+*.tar.gz
+.npm
+.eslintcache

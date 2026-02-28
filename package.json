@@ -1,8 +1,9 @@
 {
   "name": "worksphere-ai",
   "version": "1.0.0",
-  "description": "Intelligent Corporate Operating System",
+  "description": "🚀 WorkSphere AI - Intelligent Corporate Operating System for African businesses",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "cd frontend && npm run dev",
@@ -10,9 +11,14 @@
     "build": "npm run build:frontend",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && npm run deploy",
+    "preview": "cd frontend && npm run preview",
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
     "setup": "npm run install:all && npm run setup:db",
-    "setup:db": "cd database && node setup.js"
+    "setup:db": "cd database && node setup.js",
+    "lint": "cd frontend && npm run lint",
+    "test": "cd frontend && npm run test",
+    "clean": "rm -rf frontend/dist frontend/node_modules backend/node_modules node_modules",
+    "deploy:prod": "npm run build && npm run deploy:backend"
   },
   "keywords": [
     "ai",
@@ -20,14 +26,37 @@
     "communication",
     "workplace",
     "supabase",
-    "react"
+    "react",
+    "typescript",
+    "africa",
+    "business",
+    "collaboration",
+    "productivity",
+    "enterprise"
   ],
-  "author": "WorkSphere Technologies Ltd",
+  "author": {
+    "name": "WorkSphere Technologies Ltd",
+    "email": "info@worksphere.ai",
+    "url": "https://worksphere.ai"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WorksphereAI/worksphereai.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WorksphereAI/worksphereai/issues"
+  },
+  "homepage": "https://worksphere.ai",
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
   "engines": {
-    "node": ">=18.0.0"
-  }
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
 }

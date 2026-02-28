@@ -1,13 +1,18 @@
 {
   "name": "worksphere-backend",
   "version": "1.0.0",
-  "description": "WorkSphere AI Backend - Supabase Edge Functions",
+  "description": "🚀 WorkSphere AI Backend - Supabase Edge Functions for intelligent corporate communication",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "supabase functions serve --env-file .env",
     "deploy": "supabase functions deploy",
     "deploy:all": "supabase functions deploy --no-verify-jwt",
-    "logs": "supabase functions logs"
+    "logs": "supabase functions logs",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint functions/",
+    "lint:fix": "eslint functions/ --fix"
   },
   "dependencies": {
     "@supabase/functions-js": "^2.3.4",
@@ -15,19 +20,36 @@
     "openai": "^4.20.1",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
-    "rate-limiter-flexible": "^3.0.8"
+    "rate-limiter-flexible": "^3.0.8",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
-    "supabase": "^1.115.0"
+    "@types/uuid": "^9.0.7",
+    "@types/cors": "^2.8.17",
+    "supabase": "^1.115.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.8",
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.2"
   },
   "keywords": [
     "worksphere",
     "ai",
     "supabase",
     "edge-functions",
-    "corporate"
+    "corporate",
+    "backend",
+    "api"
   ],
-  "author": "WorkSphere Technologies Ltd",
-  "license": "MIT"
+  "author": {
+    "name": "WorkSphere Technologies Ltd",
+    "email": "info@worksphere.ai",
+    "url": "https://worksphere.ai"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
 }
