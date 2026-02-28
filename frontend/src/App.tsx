@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Dashboard } from './components/Dashboard'
-import { AuthComponent } from './components/Auth'
+import { ProfessionalAuth } from './components/auth/ProfessionalAuth'
 import { supabase } from './lib/supabase'
 
 function App() {
@@ -76,7 +76,7 @@ function App() {
   }
 
   if (!user) {
-    return <AuthComponent onAuth={setUser} />
+    return <ProfessionalAuth onAuth={setUser} />
   }
 
   return <Dashboard user={user} />
