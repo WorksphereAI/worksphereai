@@ -523,22 +523,29 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
                 <div className="mt-6 text-center space-y-3">
                   <button
                     onClick={() => {
-                      setIsSignUp(!isSignUp);
-                      setErrors({});
-                      setSuccessMessage('');
-                      setFormData({
-                        email: '',
-                        password: '',
-                        fullName: '',
-                        companyName: '',
-                        agreeToTerms: false
-                      });
+                      if (isSignUp) {
+                        // If currently in signup mode, switch to login mode
+                        setIsSignUp(false);
+                        setErrors({});
+                        setSuccessMessage('');
+                        setFormData({
+                          email: '',
+                          password: '',
+                          fullName: '',
+                          companyName: '',
+                          agreeToTerms: false
+                        });
+                      } else {
+                        // If currently in login mode, navigate to signup page
+                        navigate('/signup');
+                      }
                     }}
                     className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
+                    title={isSignUp ? "Switch to sign in" : "Go to signup page"}
                   >
                     {isSignUp 
                       ? 'Already have an account? Sign in'
-                      : "Don't have an account? Sign up"
+                      : "Don't have an account? Choose signup type"
                     }
                   </button>
                   
@@ -548,6 +555,7 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
                       <button
                         onClick={() => navigate('/signup')}
                         className="text-purple-600 hover:text-purple-700 font-medium text-sm transition-colors"
+                        title="View all signup options"
                       >
                         View signup options →
                       </button>
