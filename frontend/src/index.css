@@ -247,6 +247,32 @@
   }
 }
 
+/* Accessibility: ensure white text isn't used on light backgrounds by mistake.
+   This fixes cases where components inherit `text-white` but are placed on
+   light cards or backgrounds (e.g. feature cards). It targets common
+   light-bg utility classes and card containers and forces a readable
+   foreground color while preserving explicit dark-mode white text via
+   the `dark:` modifier.
+*/
+.bg-white :where(.text-white),
+.bg-gray-50 :where(.text-white),
+.bg-gray-100 :where(.text-white),
+.card :where(.text-white),
+.card *:where(.text-white) {
+  color: var(--text-primary) !important;
+}
+
+/* In dark mode, allow explicit white text to remain white */
+@media (prefers-color-scheme: dark) {
+  .bg-white :where(.text-white),
+  .bg-gray-50 :where(.text-white),
+  .bg-gray-100 :where(.text-white),
+  .card :where(.text-white),
+  .card *:where(.text-white) {
+    color: white !important;
+  }
+}
+
 /* Utility layer styles */
 @layer utilities {
   .text-balance {
