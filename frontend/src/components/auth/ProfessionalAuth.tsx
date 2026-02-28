@@ -133,11 +133,15 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
     setErrors({});
 
     try {
+      // normalize email to avoid accidental spaces/case issues
+      const normalizedEmail = formData.email.trim().toLowerCase();
+      const password = formData.password;
+
       if (isSignUp) {
         // Sign up
         const { data, error } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
+          email: normalizedEmail,
+          password,
           options: {
             data: {
               full_name: formData.fullName,
@@ -152,7 +156,7 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
         if (data.user) {
           try {
             await userService.createUser({
-              email: formData.email,
+              email: normalizedEmail,
               full_name: formData.fullName,
               role: 'employee', // Default role for professional signup
               settings: {
@@ -162,9 +166,12 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
             });
 
             // Try to sign in the user immediately after account creation
+            // debug: avoid logging password; show email and password length
+            console.debug('Attempting immediate sign-in for', normalizedEmail, 'passwordLength=', password?.length);
+
             const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-              email: formData.email,
-              password: formData.password
+              email: normalizedEmail,
+              password
             });
 
             if (!signInError && signInData.user) {
@@ -182,9 +189,14 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
         }
       } else {
         // Sign in
+        const normalizedEmail = formData.email.trim().toLowerCase();
+        const password = formData.password;
+
+        console.debug('Signing in', normalizedEmail, 'passwordLength=', password?.length);
+
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password
+          email: normalizedEmail,
+          password
         });
 
         if (error) throw error;
@@ -202,6 +214,28 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Retry helper for signIn to handle transient errors (non-400).
+  const signInWithRetry = async (email: string, password: string, retries = 1) => {
+    let attempt = 0;
+    while (true) {
+      attempt++;
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (!error) return { data, error };
+
+      // If client error (invalid credentials) do not retry
+      if ((error as any)?.status === 400) {
+        return { data, error };
+      }
+
+      if (attempt > retries) {
+        return { data, error };
+      }
+
+      // small backoff before retry
+      await new Promise((res) => setTimeout(res, 300 * attempt));
     }
   };
 
