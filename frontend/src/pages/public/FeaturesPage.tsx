@@ -87,7 +87,7 @@ export const FeaturesPage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Document Management</h3>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">Document Management</h3>
               <p className="text-gray-600 mb-4">
                 Secure document storage with version control and intelligent search capabilities.
               </p>
@@ -106,7 +106,7 @@ export const FeaturesPage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Approval Workflows</h3>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">Approval Workflows</h3>
               <p className="text-gray-600 mb-4">
                 Streamlined approval processes with automated routing and audit trails.
               </p>
@@ -125,7 +125,7 @@ export const FeaturesPage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Integrations</h3>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">Integrations</h3>
               <p className="text-gray-600 mb-4">
                 Connect with your favorite tools and services for seamless workflow integration.
               </p>
