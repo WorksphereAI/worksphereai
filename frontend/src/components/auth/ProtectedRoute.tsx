@@ -1,5 +1,5 @@
 // src/components/auth/ProtectedRoute.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -18,7 +18,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredOrganization = false,
   redirectTo = '/login',
 }) => {
-  const { isAuthenticated, loading, hasRole, hasPermission, organizationId } = useAuth();
+  const { isAuthenticated, loading, userRole, organizationId, hasRole } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -38,18 +38,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Check role requirements
-  if (requiredRoles && !hasRole(requiredRoles)) {
-    return <Navigate to="/unauthorized" replace />;
-  }
-
-  // Check permission requirements
-  if (requiredPermissions) {
-    const permissions = Array.isArray(requiredPermissions) 
-      ? requiredPermissions 
-      : [requiredPermissions];
-    
-    const hasAllPermissions = permissions.every(p => hasPermission(p));
-    if (!hasAllPermissions) {
+  if (requiredRoles) {
+    const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
+    if (!hasRole(roles)) {
       return <Navigate to="/unauthorized" replace />;
     }
   }
@@ -92,3 +83,31 @@ export const EnterpriseRoute: React.FC<{ children: React.ReactNode }> = ({ child
     {children}
   </ProtectedRoute>
 );
+
+export const AuthRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If authenticated, redirect to dashboard
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+export const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return <>{children}</>;
+};
+
+export default ProtectedRoute;
