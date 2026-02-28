@@ -20,7 +20,7 @@
     "openai": "^4.20.1",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
-    "rate-limiter-flexible": "^3.0.8",
+    "rate-limiter-flexible": "^9.1.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
