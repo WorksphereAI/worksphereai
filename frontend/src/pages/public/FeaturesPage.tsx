@@ -30,7 +30,7 @@ export const FeaturesPage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Smart Messaging</h3>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">Smart Messaging</h3>
               <p className="text-gray-600 mb-4">
                 AI-powered chat with intelligent message routing, automated responses, and smart notifications.
               </p>
@@ -49,7 +49,7 @@ export const FeaturesPage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Task Management</h3>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">Task Management</h3>
               <p className="text-gray-600 mb-4">
                 Intelligent task tracking with automated prioritization and smart deadline management.
               </p>
@@ -68,7 +68,7 @@ export const FeaturesPage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Advanced Analytics</h3>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">Advanced Analytics</h3>
               <p className="text-gray-600 mb-4">
                 Real-time insights with AI-driven recommendations and predictive analytics.
               </p>
