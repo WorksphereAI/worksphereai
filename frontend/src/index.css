@@ -255,9 +255,17 @@
    the `dark:` modifier.
 */
 .bg-white :where(.text-white),
+.bg-white.text-white,
+.bg-white.text-white *,
 .bg-gray-50 :where(.text-white),
+.bg-gray-50.text-white,
+.bg-gray-50.text-white *,
 .bg-gray-100 :where(.text-white),
+.bg-gray-100.text-white,
+.bg-gray-100.text-white *,
 .card :where(.text-white),
+.card.text-white,
+.card.text-white *,
 .card *:where(.text-white) {
   color: var(--text-primary) !important;
 }
@@ -265,9 +273,17 @@
 /* In dark mode, allow explicit white text to remain white */
 @media (prefers-color-scheme: dark) {
   .bg-white :where(.text-white),
+  .bg-white.text-white,
+  .bg-white.text-white *,
   .bg-gray-50 :where(.text-white),
+  .bg-gray-50.text-white,
+  .bg-gray-50.text-white *,
   .bg-gray-100 :where(.text-white),
+  .bg-gray-100.text-white,
+  .bg-gray-100.text-white *,
   .card :where(.text-white),
+  .card.text-white,
+  .card.text-white *,
   .card *:where(.text-white) {
     color: white !important;
   }
