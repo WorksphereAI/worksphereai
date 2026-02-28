@@ -405,7 +405,7 @@ export class SalesPipelineService {
     console.log('New lead notification:', lead);
   }
 
-  private async sendDemoConfirmation(lead: SalesLead, demoDate: Date, salesPersonId: string): Promise<void> {
+  private async sendDemoConfirmation(lead: SalesLead, _demoDate: Date, _salesPersonId: string): Promise<void> {
     // Send demo confirmation email to lead and sales person
     console.log('Demo confirmation sent for:', lead.company_name);
   }

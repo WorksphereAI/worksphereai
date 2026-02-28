@@ -500,7 +500,7 @@ export class AdminService {
 
   async getSystemHealth(): Promise<SystemHealth> {
     // Get latest health metrics
-    const { data: metrics } = await supabase
+    const { data: _metrics } = await supabase
       .from('system_health_metrics')
       .select('*')
       .order('timestamp', { ascending: false })
@@ -524,11 +524,11 @@ export class AdminService {
 
     // Mock service status
     const services = [
-      { name: 'API', status: 'healthy', latency: 120, lastChecked: new Date().toISOString() },
-      { name: 'Database', status: 'healthy', latency: 45, lastChecked: new Date().toISOString() },
-      { name: 'Storage', status: 'healthy', latency: 89, lastChecked: new Date().toISOString() },
-      { name: 'Auth', status: 'healthy', latency: 67, lastChecked: new Date().toISOString() },
-      { name: 'Realtime', status: 'healthy', latency: 34, lastChecked: new Date().toISOString() }
+      { name: 'Database', status: 'healthy' as const, latency: 45, lastChecked: new Date().toISOString() },
+      { name: 'Storage', status: 'healthy' as const, latency: 23, lastChecked: new Date().toISOString() },
+      { name: 'Functions', status: 'healthy' as const, latency: 89, lastChecked: new Date().toISOString() },
+      { name: 'Auth', status: 'healthy' as const, latency: 67, lastChecked: new Date().toISOString() },
+      { name: 'Realtime', status: 'healthy' as const, latency: 34, lastChecked: new Date().toISOString() }
     ];
 
     return {

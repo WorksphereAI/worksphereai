@@ -306,7 +306,7 @@ class EmailService {
     };
   }
 
-  private getResendVerificationTemplate(email: string, verificationUrl: string, userType: string): EmailTemplate {
+  private getResendVerificationTemplate(email: string, verificationUrl: string, _userType: string): EmailTemplate {
     return {
       to: email,
       subject: 'New verification link for WorkSphere AI',
