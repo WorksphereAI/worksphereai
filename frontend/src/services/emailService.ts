@@ -1,13 +1,10 @@
 // src/services/emailService.ts
 import { Resend } from 'resend';
-import { mockEmailService } from './mockEmailService';
 
-// Check if we have a real Resend API key or if it's the placeholder
+// Check if we have a real Resend API key
 const hasRealApiKey = import.meta.env.VITE_RESEND_API_KEY && 
-  !import.meta.env.VITE_RESEND_API_KEY.includes('your_resend_api_key_here');
-
-// Use mock service if no real API key is provided
-const useMockService = !hasRealApiKey;
+  import.meta.env.VITE_RESEND_API_KEY.startsWith('re_') && 
+  import.meta.env.VITE_RESEND_API_KEY.length > 30;
 
 export interface EmailTemplate {
   to: string;
@@ -18,49 +15,80 @@ export interface EmailTemplate {
 
 class EmailService {
   private readonly fromEmail = 'noreply@worksphere.ai';
+  private readonly fromName = 'WorkSphere AI';
 
   // ============================================
   // VERIFICATION EMAILS
   // ============================================
 
   async sendVerificationEmail(email: string, verificationToken: string, userType: string): Promise<void> {
-    if (useMockService) {
-      return mockEmailService.sendVerificationEmail(email, verificationToken, userType);
-    }
-
-    const verificationUrl = `${import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
+    const verificationUrl = `${import.meta.env.VITE_PROD_URL || import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
     
     const template = this.getVerificationTemplate(email, verificationUrl, userType);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-      await resend.emails.send({
-        from: this.fromEmail,
-        ...template
-      });
+      if (hasRealApiKey) {
+        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
+        const { data, error } = await resend.emails.send({
+          from: `${this.fromName} <${this.fromEmail}>`,
+          ...template
+        });
+
+        if (error) {
+          console.error('Resend API error:', error);
+          throw new Error(`Failed to send email: ${error.message}`);
+        }
+
+        console.log('✅ Verification email sent successfully:', data);
+      } else {
+        // Fallback for development
+        console.log('📧 DEV MODE - Verification email would be sent to:', email);
+        console.log('📧 Verification URL:', verificationUrl);
+        console.log('📧 User Type:', userType);
+      }
     } catch (error) {
       console.error('Error sending verification email:', error);
+      
+      // Don't throw in development - just log
+      if (import.meta.env.DEV) {
+        console.log('📧 DEV MODE - Email sending failed, but continuing...');
+        return;
+      }
+      
       throw new Error('Failed to send verification email');
     }
   }
 
   async resendVerificationEmail(email: string, verificationToken: string, userType: string): Promise<void> {
-    if (useMockService) {
-      return mockEmailService.sendVerificationEmail(email, verificationToken, userType);
-    }
-
-    const verificationUrl = `${import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
+    const verificationUrl = `${import.meta.env.VITE_PROD_URL || import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
     
-    const template = this.getResendVerificationTemplate(email, verificationUrl, userType);
+    const template = this.getVerificationTemplate(email, verificationUrl, userType);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-      await resend.emails.send({
-        from: this.fromEmail,
-        ...template
-      });
+      if (hasRealApiKey) {
+        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
+        const { data, error } = await resend.emails.send({
+          from: `${this.fromName} <${this.fromEmail}>`,
+          ...template
+        });
+
+        if (error) {
+          console.error('Resend API error:', error);
+          throw new Error(`Failed to resend email: ${error.message}`);
+        }
+
+        console.log('✅ Resend verification email sent successfully:', data);
+      } else {
+        console.log('📧 DEV MODE - Resend verification email would be sent to:', email);
+      }
     } catch (error) {
       console.error('Error resending verification email:', error);
+      
+      if (import.meta.env.DEV) {
+        console.log('📧 DEV MODE - Email resend failed, but continuing...');
+        return;
+      }
+      
       throw new Error('Failed to resend verification email');
     }
   }
@@ -76,22 +104,35 @@ class EmailService {
     organizationName: string,
     role: string
   ): Promise<void> {
-    if (useMockService) {
-      return mockEmailService.sendInvitationEmail(email, invitationToken, inviterName, organizationName, role);
-    }
-
-    const invitationUrl = `${import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/accept-invitation?token=${invitationToken}`;
+    const invitationUrl = `${import.meta.env.VITE_PROD_URL || import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/accept-invitation?token=${invitationToken}`;
     
     const template = this.getInvitationTemplate(email, invitationUrl, inviterName, organizationName, role);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-      await resend.emails.send({
-        from: this.fromEmail,
-        ...template
-      });
+      if (hasRealApiKey) {
+        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
+        const { data, error } = await resend.emails.send({
+          from: `${this.fromName} <${this.fromEmail}>`,
+          ...template
+        });
+
+        if (error) {
+          console.error('Resend API error:', error);
+          throw new Error(`Failed to send invitation: ${error.message}`);
+        }
+
+        console.log('✅ Invitation email sent successfully:', data);
+      } else {
+        console.log('📧 DEV MODE - Invitation email would be sent to:', email);
+      }
     } catch (error) {
       console.error('Error sending invitation email:', error);
+      
+      if (import.meta.env.DEV) {
+        console.log('📧 DEV MODE - Invitation email failed, but continuing...');
+        return;
+      }
+      
       throw new Error('Failed to send invitation email');
     }
   }
@@ -101,39 +142,65 @@ class EmailService {
   // ============================================
 
   async sendWelcomeEmail(email: string, name: string, userType: string): Promise<void> {
-    if (useMockService) {
-      return mockEmailService.sendWelcomeEmail(email, name, userType);
-    }
-
     const template = this.getWelcomeTemplate(email, name, userType);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-      await resend.emails.send({
-        from: this.fromEmail,
-        ...template
-      });
+      if (hasRealApiKey) {
+        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
+        const { data, error } = await resend.emails.send({
+          from: `${this.fromName} <${this.fromEmail}>`,
+          ...template
+        });
+
+        if (error) {
+          console.error('Resend API error:', error);
+          throw new Error(`Failed to send welcome email: ${error.message}`);
+        }
+
+        console.log('✅ Welcome email sent successfully:', data);
+      } else {
+        console.log('📧 DEV MODE - Welcome email would be sent to:', email);
+      }
     } catch (error) {
       console.error('Error sending welcome email:', error);
+      
+      if (import.meta.env.DEV) {
+        console.log('📧 DEV MODE - Welcome email failed, but continuing...');
+        return;
+      }
+      
       throw new Error('Failed to send welcome email');
     }
   }
 
   async sendOnboardingCompleteEmail(email: string, name: string, organizationName: string): Promise<void> {
-    if (useMockService) {
-      return mockEmailService.sendOnboardingCompleteEmail(email, name, organizationName);
-    }
-
     const template = this.getOnboardingCompleteTemplate(email, name, organizationName);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-      await resend.emails.send({
-        from: this.fromEmail,
-        ...template
-      });
+      if (hasRealApiKey) {
+        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
+        const { data, error } = await resend.emails.send({
+          from: `${this.fromName} <${this.fromEmail}>`,
+          ...template
+        });
+
+        if (error) {
+          console.error('Resend API error:', error);
+          throw new Error(`Failed to send onboarding email: ${error.message}`);
+        }
+
+        console.log('✅ Onboarding complete email sent successfully:', data);
+      } else {
+        console.log('📧 DEV MODE - Onboarding complete email would be sent to:', email);
+      }
     } catch (error) {
       console.error('Error sending onboarding complete email:', error);
+      
+      if (import.meta.env.DEV) {
+        console.log('📧 DEV MODE - Onboarding email failed, but continuing...');
+        return;
+      }
+      
       throw new Error('Failed to send onboarding complete email');
     }
   }
@@ -143,22 +210,35 @@ class EmailService {
   // ============================================
 
   async sendPasswordResetEmail(email: string, resetToken: string): Promise<void> {
-    if (useMockService) {
-      return mockEmailService.sendPasswordResetEmail(email, resetToken);
-    }
-
-    const resetUrl = `${import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
+    const resetUrl = `${import.meta.env.VITE_PROD_URL || import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
     
     const template = this.getPasswordResetTemplate(email, resetUrl);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-      await resend.emails.send({
-        from: this.fromEmail,
-        ...template
-      });
+      if (hasRealApiKey) {
+        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
+        const { data, error } = await resend.emails.send({
+          from: `${this.fromName} <${this.fromEmail}>`,
+          ...template
+        });
+
+        if (error) {
+          console.error('Resend API error:', error);
+          throw new Error(`Failed to send password reset: ${error.message}`);
+        }
+
+        console.log('✅ Password reset email sent successfully:', data);
+      } else {
+        console.log('📧 DEV MODE - Password reset email would be sent to:', email);
+      }
     } catch (error) {
       console.error('Error sending password reset email:', error);
+      
+      if (import.meta.env.DEV) {
+        console.log('📧 DEV MODE - Password reset email failed, but continuing...');
+        return;
+      }
+      
       throw new Error('Failed to send password reset email');
     }
   }
@@ -172,39 +252,65 @@ class EmailService {
     newMemberName: string, 
     organizationName: string
   ): Promise<void> {
-    if (useMockService) {
-      return mockEmailService.sendTeamInvitationAcceptedEmail(adminEmail, newMemberName, organizationName);
-    }
-
     const template = this.getInvitationAcceptedTemplate(adminEmail, newMemberName, organizationName);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-      await resend.emails.send({
-        from: this.fromEmail,
-        ...template
-      });
+      if (hasRealApiKey) {
+        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
+        const { data, error } = await resend.emails.send({
+          from: `${this.fromName} <${this.fromEmail}>`,
+          ...template
+        });
+
+        if (error) {
+          console.error('Resend API error:', error);
+          throw new Error(`Failed to send invitation accepted: ${error.message}`);
+        }
+
+        console.log('✅ Invitation accepted email sent successfully:', data);
+      } else {
+        console.log('📧 DEV MODE - Invitation accepted email would be sent to:', adminEmail);
+      }
     } catch (error) {
       console.error('Error sending invitation accepted email:', error);
+      
+      if (import.meta.env.DEV) {
+        console.log('📧 DEV MODE - Invitation accepted email failed, but continuing...');
+        return;
+      }
+      
       throw new Error('Failed to send invitation accepted email');
     }
   }
 
   async sendAccountSuspendedEmail(email: string, name: string, reason: string): Promise<void> {
-    if (useMockService) {
-      return mockEmailService.sendAccountSuspendedEmail(email, name, reason);
-    }
-
     const template = this.getAccountSuspendedTemplate(email, name, reason);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
-      await resend.emails.send({
-        from: this.fromEmail,
-        ...template
-      });
+      if (hasRealApiKey) {
+        const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
+        const { data, error } = await resend.emails.send({
+          from: `${this.fromName} <${this.fromEmail}>`,
+          ...template
+        });
+
+        if (error) {
+          console.error('Resend API error:', error);
+          throw new Error(`Failed to send suspension email: ${error.message}`);
+        }
+
+        console.log('✅ Account suspended email sent successfully:', data);
+      } else {
+        console.log('📧 DEV MODE - Account suspended email would be sent to:', email);
+      }
     } catch (error) {
       console.error('Error sending account suspended email:', error);
+      
+      if (import.meta.env.DEV) {
+        console.log('📧 DEV MODE - Suspension email failed, but continuing...');
+        return;
+      }
+      
       throw new Error('Failed to send account suspended email');
     }
   }
@@ -306,60 +412,7 @@ class EmailService {
     };
   }
 
-  private getResendVerificationTemplate(email: string, verificationUrl: string, _userType: string): EmailTemplate {
-    return {
-      to: email,
-      subject: 'New verification link for WorkSphere AI',
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>New verification link</title>
-          <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { text-align: center; padding: 30px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px 12px 0 0; }
-            .content { background: white; padding: 30px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-            .button { display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0; }
-            .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>🔄 New Verification Link</h1>
-              <p>Here's your fresh verification link</p>
-            </div>
-            
-            <div class="content">
-              <h2>You requested a new verification link</h2>
-              <p>No problem! Here's your new verification link for WorkSphere AI. This link will expire in 24 hours:</p>
-              
-              <div style="text-align: center;">
-                <a href="${verificationUrl}" class="button">Verify Email Address</a>
-              </div>
-              
-              <p style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                <strong>🔒 Security note:</strong> If you didn't request this new link, please secure your account and contact support.
-              </p>
-            </div>
-            
-            <div class="footer">
-              <p>WorkSphere AI • Intelligent Corporate Operating System</p>
-              <p style="font-size: 12px; color: #999;">
-                If you're having trouble clicking the verification button, copy and paste this URL into your browser:<br>
-                <span style="word-break: break-all;">${verificationUrl}</span>
-              </p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `
-    };
-  }
-
+  
   private getWelcomeTemplate(email: string, name: string, userType: string): EmailTemplate {
     const isEnterprise = userType === 'enterprise';
     const dashboardUrl = `${import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/dashboard`;
