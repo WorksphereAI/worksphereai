@@ -33,7 +33,6 @@ class EmailService {
     const template = this.getVerificationTemplate(email, verificationUrl, userType);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
       await resend.emails.send({
         from: this.fromEmail,
         ...template
@@ -54,7 +53,6 @@ class EmailService {
     const template = this.getResendVerificationTemplate(email, verificationUrl, userType);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
       await resend.emails.send({
         from: this.fromEmail,
         ...template
@@ -85,7 +83,6 @@ class EmailService {
     const template = this.getInvitationTemplate(email, invitationUrl, inviterName, organizationName, role);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
       await resend.emails.send({
         from: this.fromEmail,
         ...template
@@ -108,7 +105,6 @@ class EmailService {
     const template = this.getWelcomeTemplate(email, name, userType);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
       await resend.emails.send({
         from: this.fromEmail,
         ...template
@@ -127,7 +123,6 @@ class EmailService {
     const template = this.getOnboardingCompleteTemplate(email, name, organizationName);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
       await resend.emails.send({
         from: this.fromEmail,
         ...template
@@ -152,7 +147,6 @@ class EmailService {
     const template = this.getPasswordResetTemplate(email, resetUrl);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
       await resend.emails.send({
         from: this.fromEmail,
         ...template
@@ -179,7 +173,6 @@ class EmailService {
     const template = this.getInvitationAcceptedTemplate(adminEmail, newMemberName, organizationName);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
       await resend.emails.send({
         from: this.fromEmail,
         ...template
@@ -198,7 +191,157 @@ class EmailService {
     const template = this.getAccountSuspendedTemplate(email, name, reason);
     
     try {
-      const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
+      await resend.emails.send({
+        from: this.fromEmail,
+        ...template
+      });
+    } catch (error) {
+      console.error('Error sending account suspended email:', error);
+      throw new Error('Failed to send account suspended email');
+    }
+  }
+
+  // ============================================
+  // EMAIL TEMPLATES
+  // ============================================
+
+  private getVerificationTemplate(email: string, verificationUrl: string, userType: string): EmailTemplate {
+    const verificationUrl = `${import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
+    
+    const template = this.getVerificationTemplate(email, verificationUrl, userType);
+    
+    try {
+      await resend.emails.send({
+        from: this.fromEmail,
+        ...template
+      });
+    } catch (error) {
+      console.error('Error sending verification email:', error);
+      throw new Error('Failed to send verification email');
+    }
+  }
+
+  async resendVerificationEmail(email: string, verificationToken: string, userType: string): Promise<void> {
+    // Same as verification email, but with different subject
+    const verificationUrl = `${import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`;
+    
+    const template = this.getResendVerificationTemplate(email, verificationUrl, userType);
+    
+    try {
+      await resend.emails.send({
+        from: this.fromEmail,
+        ...template
+      });
+    } catch (error) {
+      console.error('Error resending verification email:', error);
+      throw new Error('Failed to resend verification email');
+    }
+  }
+
+  // ============================================
+  // INVITATION EMAILS
+  // ============================================
+
+  async sendInvitationEmail(
+    email: string, 
+    invitationToken: string, 
+    inviterName: string, 
+    organizationName: string,
+    role: string
+  ): Promise<void> {
+    const invitationUrl = `${import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/accept-invitation?token=${invitationToken}`;
+    
+    const template = this.getInvitationTemplate(email, invitationUrl, inviterName, organizationName, role);
+    
+    try {
+      await resend.emails.send({
+        from: this.fromEmail,
+        ...template
+      });
+    } catch (error) {
+      console.error('Error sending invitation email:', error);
+      throw new Error('Failed to send invitation email');
+    }
+  }
+
+  // ============================================
+  // WELCOME EMAILS
+  // ============================================
+
+  async sendWelcomeEmail(email: string, name: string, userType: string): Promise<void> {
+    const template = this.getWelcomeTemplate(email, name, userType);
+    
+    try {
+      await resend.emails.send({
+        from: this.fromEmail,
+        ...template
+      });
+    } catch (error) {
+      console.error('Error sending welcome email:', error);
+      throw new Error('Failed to send welcome email');
+    }
+  }
+
+  async sendOnboardingCompleteEmail(email: string, name: string, organizationName: string): Promise<void> {
+    const template = this.getOnboardingCompleteTemplate(email, name, organizationName);
+    
+    try {
+      await resend.emails.send({
+        from: this.fromEmail,
+        ...template
+      });
+    } catch (error) {
+      console.error('Error sending onboarding complete email:', error);
+      throw new Error('Failed to send onboarding complete email');
+    }
+  }
+
+  // ============================================
+  // PASSWORD RESET EMAILS
+  // ============================================
+
+  async sendPasswordResetEmail(email: string, resetToken: string): Promise<void> {
+    const resetUrl = `${import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
+    
+    const template = this.getPasswordResetTemplate(email, resetUrl);
+    
+    try {
+      await resend.emails.send({
+        from: this.fromEmail,
+        ...template
+      });
+    } catch (error) {
+      console.error('Error sending password reset email:', error);
+      throw new Error('Failed to send password reset email');
+    }
+  }
+
+  // ============================================
+  // NOTIFICATION EMAILS
+  // ============================================
+
+  async sendTeamInvitationAcceptedEmail(
+    adminEmail: string, 
+    newMemberName: string, 
+    organizationName: string
+  ): Promise<void> {
+    const template = this.getInvitationAcceptedTemplate(adminEmail, newMemberName, organizationName);
+    
+    try {
+      await resend.emails.send({
+        from: this.fromEmail,
+        ...template
+      });
+    } catch (error) {
+      console.error('Error sending invitation accepted email:', error);
+      throw new Error('Failed to send invitation accepted email');
+    }
+  }
+
+  async sendAccountSuspendedEmail(email: string, name: string, reason: string): Promise<void> {
+    const template = this.getAccountSuspendedTemplate(email, name, reason);
+    
+    try {
       await resend.emails.send({
         from: this.fromEmail,
         ...template
@@ -216,6 +359,7 @@ class EmailService {
   private getVerificationTemplate(email: string, verificationUrl: string, userType: string): EmailTemplate {
     const isEnterprise = userType === 'enterprise';
     const isIndividual = userType === 'individual';
+    const isCustomer = userType === 'customer';
 
     return {
       to: email,
@@ -351,6 +495,83 @@ class EmailService {
               <p style="font-size: 12px; color: #999;">
                 If you're having trouble clicking the verification button, copy and paste this URL into your browser:<br>
                 <span style="word-break: break-all;">${verificationUrl}</span>
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    };
+  }
+
+  private getInvitationTemplate(
+    email: string, 
+    invitationUrl: string, 
+    inviterName: string, 
+    organizationName: string,
+    role: string
+  ): EmailTemplate {
+    const roleDescription = {
+      admin: 'administrative access',
+      manager: 'management privileges',
+      employee: 'team member access'
+    }[role] || 'access';
+
+    return {
+      to: email,
+      subject: `You're invited to join ${organizationName} on WorkSphere AI`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Invitation to WorkSphere AI</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { text-align: center; padding: 40px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px 12px 0 0; }
+            .content { background: white; padding: 40px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+            .button { display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0; }
+            .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
+            .invitation-card { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🎉 You're Invited!</h1>
+              <p>Join ${organizationName} on WorkSphere AI</p>
+            </div>
+            
+            <div class="content">
+              <h2>${inviterName} invited you to collaborate</h2>
+              <p>You've been invited to join <strong>${organizationName}</strong> on WorkSphere AI with ${roleDescription}.</p>
+              
+              <div class="invitation-card">
+                <h3>🏢 ${organizationName}</h3>
+                <p><strong>Role:</strong> ${role.charAt(0).toUpperCase() + role.slice(1)}</p>
+                <p><strong>Invited by:</strong> ${inviterName}</p>
+              </div>
+              
+              <div style="text-align: center;">
+                <a href="${invitationUrl}" class="button">Accept Invitation</a>
+              </div>
+              
+              <p><strong>What is WorkSphere AI?</strong></p>
+              <p>WorkSphere AI is an intelligent corporate operating system that helps teams collaborate, manage projects, and boost productivity with AI-powered tools and automation.</p>
+              
+              <p style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <strong>⏰ This invitation expires in 7 days</strong><br>
+                If you don't accept by then, you'll need to request a new invitation.
+              </p>
+            </div>
+            
+            <div class="footer">
+              <p>WorkSphere AI • Intelligent Corporate Operating System</p>
+              <p style="font-size: 12px; color: #999;">
+                If you're having trouble clicking the invitation button, copy and paste this URL into your browser:<br>
+                <span style="word-break: break-all;">${invitationUrl}</span>
               </p>
             </div>
           </div>
@@ -653,83 +874,6 @@ class EmailService {
               <p style="font-size: 12px; color: #999;">
                 You're receiving this email because you're an admin of ${organizationName}.<br>
                 <a href="#" style="color: #666;">Team Settings</a>
-              </p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `
-    };
-  }
-
-  private getInvitationTemplate(
-    email: string, 
-    invitationUrl: string, 
-    inviterName: string, 
-    organizationName: string,
-    role: string
-  ): EmailTemplate {
-    const roleDescription = {
-      admin: 'administrative access',
-      manager: 'management privileges',
-      employee: 'team member access'
-    }[role] || 'access';
-
-    return {
-      to: email,
-      subject: `You're invited to join ${organizationName} on WorkSphere AI`,
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Invitation to WorkSphere AI</title>
-          <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { text-align: center; padding: 40px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px 12px 0 0; }
-            .content { background: white; padding: 40px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-            .button { display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0; }
-            .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
-            .invitation-card { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>🎉 You're Invited!</h1>
-              <p>Join ${organizationName} on WorkSphere AI</p>
-            </div>
-            
-            <div class="content">
-              <h2>${inviterName} invited you to collaborate</h2>
-              <p>You've been invited to join <strong>${organizationName}</strong> on WorkSphere AI with ${roleDescription}.</p>
-              
-              <div class="invitation-card">
-                <h3>🏢 ${organizationName}</h3>
-                <p><strong>Role:</strong> ${role.charAt(0).toUpperCase() + role.slice(1)}</p>
-                <p><strong>Invited by:</strong> ${inviterName}</p>
-              </div>
-              
-              <div style="text-align: center;">
-                <a href="${invitationUrl}" class="button">Accept Invitation</a>
-              </div>
-              
-              <p><strong>What is WorkSphere AI?</strong></p>
-              <p>WorkSphere AI is an intelligent corporate operating system that helps teams collaborate, manage projects, and boost productivity with AI-powered tools and automation.</p>
-              
-              <p style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                <strong>⏰ This invitation expires in 7 days</strong><br>
-                If you don't accept by then, you'll need to request a new invitation.
-              </p>
-            </div>
-            
-            <div class="footer">
-              <p>WorkSphere AI • Intelligent Corporate Operating System</p>
-              <p style="font-size: 12px; color: #999;">
-                If you're having trouble clicking the invitation button, copy and paste this URL into your browser:<br>
-                <span style="word-break: break-all;">${invitationUrl}</span>
               </p>
             </div>
           </div>

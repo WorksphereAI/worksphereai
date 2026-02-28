@@ -1,6 +1,13 @@
 import React, { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Dashboard } from './components/Dashboard'
 import { ProfessionalAuth } from './components/auth/ProfessionalAuth'
+import { SignupPage } from './components/auth/SignupPage'
+import { EnterpriseSignup } from './components/auth/EnterpriseSignup'
+import { IndividualSignup } from './components/auth/IndividualSignup'
+import { CustomerSignup } from './components/auth/CustomerSignup'
+import { EmailVerification } from './components/auth/EmailVerification'
+import { OnboardingFlow } from './components/onboarding/OnboardingFlow'
 import { supabase } from './lib/supabase'
 
 function App() {
@@ -75,11 +82,33 @@ function App() {
     )
   }
 
-  if (!user) {
-    return <ProfessionalAuth onAuth={setUser} />
-  }
-
-  return <Dashboard user={user} />
+  return (
+    <Router>
+      <Routes>
+        {/* Default route - redirect to signup */}
+        <Route path="/" element={<Navigate to="/signup" replace />} />
+        
+        {/* Authentication routes */}
+        <Route path="/login" element={<ProfessionalAuth onAuth={setUser} />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/signup/enterprise" element={<EnterpriseSignup />} />
+        <Route path="/signup/individual" element={<IndividualSignup />} />
+        <Route path="/signup/customer" element={<CustomerSignup />} />
+        
+        {/* Email verification */}
+        <Route path="/verify-email" element={<EmailVerification />} />
+        
+        {/* Onboarding */}
+        <Route path="/onboarding" element={<OnboardingFlow />} />
+        
+        {/* Protected routes */}
+        <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" replace />} />
+        
+        {/* Catch all - redirect to signup */}
+        <Route path="*" element={<Navigate to="/signup" replace />} />
+      </Routes>
+    </Router>
+  )
 }
 
 export default App
