@@ -425,20 +425,28 @@ export const CustomerSignup: React.FC = () => {
                 <h4 className="text-sm font-medium text-gray-700 mb-2">Password Requirements:</h4>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="flex items-center text-sm">
-                    <CheckCircle className={`w-4 h-4 mr-2 ${customerInfo.password.length >= 8 ? 'text-green-500' : 'text-gray-300'}`} />
-                    At least 8 characters
+                    <CheckCircle className={`w-4 h-4 mr-2 ${customerInfo.password.length >= 8 ? 'text-green-500' : 'text-gray-400'}`} />
+                    <span className={customerInfo.password.length >= 8 ? 'text-green-700' : 'text-gray-600'}>
+                      At least 8 characters
+                    </span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <CheckCircle className={`w-4 h-4 mr-2 ${/[a-z]/.test(customerInfo.password) ? 'text-green-500' : 'text-gray-300'}`} />
-                    Contains lowercase
+                    <CheckCircle className={`w-4 h-4 mr-2 ${/[a-z]/.test(customerInfo.password) ? 'text-green-500' : 'text-gray-400'}`} />
+                    <span className={/[a-z]/.test(customerInfo.password) ? 'text-green-700' : 'text-gray-600'}>
+                      Contains lowercase letter
+                    </span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <CheckCircle className={`w-4 h-4 mr-2 ${/[A-Z]/.test(customerInfo.password) ? 'text-green-500' : 'text-gray-300'}`} />
-                    Contains uppercase
+                    <CheckCircle className={`w-4 h-4 mr-2 ${/[A-Z]/.test(customerInfo.password) ? 'text-green-500' : 'text-gray-400'}`} />
+                    <span className={/[A-Z]/.test(customerInfo.password) ? 'text-green-700' : 'text-gray-600'}>
+                      Contains uppercase letter
+                    </span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <CheckCircle className={`w-4 h-4 mr-2 ${/\d/.test(customerInfo.password) ? 'text-green-500' : 'text-gray-300'}`} />
-                    Contains number
+                    <CheckCircle className={`w-4 h-4 mr-2 ${/\d/.test(customerInfo.password) ? 'text-green-500' : 'text-gray-400'}`} />
+                    <span className={/\d/.test(customerInfo.password) ? 'text-green-700' : 'text-gray-600'}>
+                      Contains number
+                    </span>
                   </div>
                 </div>
               </div>

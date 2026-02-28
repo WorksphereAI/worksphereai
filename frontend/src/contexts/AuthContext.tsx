@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import type { User } from '@supabase/supabase-js';
 
 interface AuthUser extends User {
+  full_name?: string;
   role?: 'ceo' | 'admin' | 'manager' | 'employee' | 'customer';
   organization_id?: string;
   department_id?: string;
@@ -70,20 +71,90 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('users')
         .select('*')
         .eq('id', authUser.id)
-        .single();
+        .maybeSingle(); // Use maybeSingle() instead of single()
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading user profile:', error);
+        // Don't throw error, continue with auth user data
+        const permissions = await getUserPermissions(authUser.user_metadata?.role || 'employee');
+        setUser({
+          ...authUser,
+          full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
+          role: authUser.user_metadata?.role || 'employee',
+          permissions,
+        });
+        return;
+      }
 
-      // Get user permissions based on role
-      const permissions = await getUserPermissions(profile.role);
+      if (profile) {
+        // Profile exists - use it
+        const permissions = await getUserPermissions(profile.role);
+        setUser({
+          ...authUser,
+          ...profile,
+          permissions,
+        });
+      } else {
+        // Profile doesn't exist - create it
+        console.log('No profile found, creating one for:', authUser.id);
+        
+        const newProfile = {
+          id: authUser.id,
+          email: authUser.email,
+          full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
+          role: authUser.user_metadata?.role || 'employee',
+          settings: {
+            notifications: true,
+            language: 'en',
+            theme: 'system'
+          }
+        };
 
+        const { data: createdProfile, error: createError } = await supabase
+          .from('users')
+          .insert([newProfile])
+          .select()
+          .maybeSingle();
+
+        if (createError) {
+          console.error('Error creating user profile:', createError);
+          // Still set user with auth data
+          const permissions = await getUserPermissions(authUser.user_metadata?.role || 'employee');
+          setUser({
+            ...authUser,
+            full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
+            role: authUser.user_metadata?.role || 'employee',
+            permissions,
+          });
+        } else if (createdProfile) {
+          console.log('User profile created:', createdProfile);
+          const permissions = await getUserPermissions(createdProfile.role);
+          setUser({
+            ...authUser,
+            ...createdProfile,
+            permissions,
+          });
+        } else {
+          // Fallback to auth user data
+          const permissions = await getUserPermissions(authUser.user_metadata?.role || 'employee');
+          setUser({
+            ...authUser,
+            full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
+            role: authUser.user_metadata?.role || 'employee',
+            permissions,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error in loadUserProfile:', error);
+      // Still set user with auth data as fallback
+      const permissions = await getUserPermissions(authUser.user_metadata?.role || 'employee');
       setUser({
         ...authUser,
-        ...profile,
+        full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
+        role: authUser.user_metadata?.role || 'employee',
         permissions,
       });
-    } catch (error) {
-      console.error('Error loading user profile:', error);
     }
   };
 

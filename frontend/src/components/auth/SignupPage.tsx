@@ -221,7 +221,10 @@ export const SignupPage: React.FC = () => {
                   Talk to Sales
                 </button>
                 <button
-                  onClick={() => navigate('/demo')}
+                  onClick={() => {
+                    // marketing index page has a #demo section, so jump there instead of a dedicated route
+                    window.location.href = '/#demo';
+                  }}
                   className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
                 >
                   Request Demo
