@@ -332,7 +332,7 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
                         setErrors({ general: 'Google authentication failed' });
                       }}
                       text={isSignUp ? 'signup_with' : 'signin_with'}
-                      width="100%"
+                      width="360"
                       theme="filled_blue"
                       size="large"
                       shape="rectangular"

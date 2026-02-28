@@ -104,9 +104,12 @@ class SignupService {
         .eq('email', email)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.warn('Error fetching signup attempt:', error);
+      }
+      
       return data;
     } catch (error) {
       console.error('Error getting signup attempt:', error);
@@ -522,27 +525,33 @@ class SignupService {
   async isEmailAvailable(email: string): Promise<boolean> {
     try {
       // Check if email exists in users table
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('users')
         .select('id')
         .eq('email', email)
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single to avoid errors
 
-      // If no error and data exists, email is taken
-      if (!error && data) {
+      // If data exists, email is taken
+      if (data) {
         return false;
       }
 
       // Check if there's a pending signup attempt
-      const pendingAttempt = await this.getSignupAttempt(email);
-      if (pendingAttempt && pendingAttempt.status === 'pending') {
-        return false;
+      try {
+        const pendingAttempt = await this.getSignupAttempt(email);
+        if (pendingAttempt && pendingAttempt.status === 'pending') {
+          return false;
+        }
+      } catch (signupError) {
+        // If we can't check signup attempts, assume email is available
+        console.warn('Could not check signup attempts:', signupError);
       }
 
       return true;
     } catch (error) {
       console.error('Error checking email availability:', error);
-      return false;
+      // If we can't check, assume email is available for now
+      return true;
     }
   }
 
