@@ -39,6 +39,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (session?.user) {
           await loadUserProfile(session.user);
+        } else {
+          setUser(null);
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
@@ -52,8 +54,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        console.log('Auth state changed:', _event, session?.user?.email);
+        
         if (session?.user) {
-          await loadUserProfile(session.user);
+          // Small delay to ensure database is updated
+          setTimeout(async () => {
+            await loadUserProfile(session.user);
+          }, 500);
         } else {
           setUser(null);
         }
@@ -64,101 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const loadUserProfile = async (authUser: User) => {
-    try {
-      // Get additional user data from our users table
-      const { data: profile, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', authUser.id)
-        .maybeSingle(); // Use maybeSingle() instead of single()
-
-      if (error) {
-        console.error('Error loading user profile:', error);
-        // Don't throw error, continue with auth user data
-        const permissions = await getUserPermissions(authUser.user_metadata?.role || 'employee');
-        setUser({
-          ...authUser,
-          full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
-          role: authUser.user_metadata?.role || 'employee',
-          permissions,
-        });
-        return;
-      }
-
-      if (profile) {
-        // Profile exists - use it
-        const permissions = await getUserPermissions(profile.role);
-        setUser({
-          ...authUser,
-          ...profile,
-          permissions,
-        });
-      } else {
-        // Profile doesn't exist - create it
-        console.log('No profile found, creating one for:', authUser.id);
-        
-        const newProfile = {
-          id: authUser.id,
-          email: authUser.email,
-          full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
-          role: authUser.user_metadata?.role || 'employee',
-          settings: {
-            notifications: true,
-            language: 'en',
-            theme: 'system'
-          }
-        };
-
-        const { data: createdProfile, error: createError } = await supabase
-          .from('users')
-          .insert([newProfile])
-          .select()
-          .maybeSingle();
-
-        if (createError) {
-          console.error('Error creating user profile:', createError);
-          // Still set user with auth data
-          const permissions = await getUserPermissions(authUser.user_metadata?.role || 'employee');
-          setUser({
-            ...authUser,
-            full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
-            role: authUser.user_metadata?.role || 'employee',
-            permissions,
-          });
-        } else if (createdProfile) {
-          console.log('User profile created:', createdProfile);
-          const permissions = await getUserPermissions(createdProfile.role);
-          setUser({
-            ...authUser,
-            ...createdProfile,
-            permissions,
-          });
-        } else {
-          // Fallback to auth user data
-          const permissions = await getUserPermissions(authUser.user_metadata?.role || 'employee');
-          setUser({
-            ...authUser,
-            full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
-            role: authUser.user_metadata?.role || 'employee',
-            permissions,
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error in loadUserProfile:', error);
-      // Still set user with auth data as fallback
-      const permissions = await getUserPermissions(authUser.user_metadata?.role || 'employee');
-      setUser({
-        ...authUser,
-        full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
-        role: authUser.user_metadata?.role || 'employee',
-        permissions,
-      });
-    }
-  };
-
-  const getUserPermissions = async (role: string): Promise<string[]> => {
+  const getUserPermissions = (role: string): string[] => {
     // Define permissions based on role
     const permissionsMap: Record<string, string[]> = {
       ceo: ['*'], // All permissions
@@ -169,6 +82,130 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return permissionsMap[role] || [];
+  };
+
+  const loadUserProfile = async (authUser: User) => {
+    try {
+      console.log('Loading user profile for:', authUser.id);
+      
+      // Try to get existing profile
+      const { data: profile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authUser.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching user profile:', error);
+      }
+
+      if (profile) {
+        // Profile exists - use it
+        console.log('User profile found:', profile);
+        const permissions = getUserPermissions(profile.role);
+        setUser({
+          ...authUser,
+          ...profile,
+          permissions,
+        });
+        return;
+      }
+
+      // Profile doesn't exist - create it
+      console.log('No profile found, creating one for:', authUser.id);
+      
+      const defaultRole = authUser.user_metadata?.role || 'employee';
+      const defaultName = authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User';
+      
+      const newProfile = {
+        id: authUser.id,
+        email: authUser.email!,
+        full_name: defaultName,
+        role: defaultRole,
+        settings: {
+          notifications: true,
+          language: 'en',
+          theme: 'system',
+          onboarding_completed: false
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      // Try to insert the new profile
+      const { data: createdProfile, error: createError } = await supabase
+        .from('users')
+        .insert([newProfile])
+        .select()
+        .maybeSingle();
+
+      if (createError) {
+        // log full error details for diagnosis
+        console.error('Error creating user profile:', createError);
+        console.error('createError message:', createError.message, 'code:', createError.code);
+        
+        // Check if profile was created by another process
+        const { data: retryProfile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', authUser.id)
+          .maybeSingle();
+
+        if (retryProfile) {
+          console.log('Profile found on retry:', retryProfile);
+          const permissions = getUserPermissions(retryProfile.role);
+          setUser({
+            ...authUser,
+            ...retryProfile,
+            permissions,
+          });
+          return;
+        }
+
+        // Still failed, set user with basic data
+        const permissions = getUserPermissions(defaultRole);
+        setUser({
+          ...authUser,
+          full_name: defaultName,
+          role: defaultRole,
+          permissions,
+        });
+        return;
+      }
+
+      if (createdProfile) {
+        console.log('User profile created successfully:', createdProfile);
+        const permissions = getUserPermissions(createdProfile.role);
+        setUser({
+          ...authUser,
+          ...createdProfile,
+          permissions,
+        });
+      } else {
+        // Fallback to auth user data
+        const permissions = getUserPermissions(defaultRole);
+        setUser({
+          ...authUser,
+          full_name: defaultName,
+          role: defaultRole,
+          permissions,
+        });
+      }
+
+    } catch (error) {
+      console.error('Error in loadUserProfile:', error);
+      // Always set user with basic data to prevent infinite loading
+      const defaultRole = authUser.user_metadata?.role || 'employee';
+      const defaultName = authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User';
+      const permissions = getUserPermissions(defaultRole);
+      
+      setUser({
+        ...authUser,
+        full_name: defaultName,
+        role: defaultRole,
+        permissions,
+      });
+    }
   };
 
   const login = async (email: string, password: string) => {

@@ -32,32 +32,45 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   const [notifications] = useState(0)
   const [currentView, setCurrentView] = useState<'dashboard' | 'messages' | 'tasks' | 'organization' | 'approvals' | 'documents' | 'analytics'>('dashboard')
   const [selectedChannel, setSelectedChannel] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     loadDashboardData()
   }, [user])
 
   const loadDashboardData = async () => {
+    setLoading(true)
     try {
       // Load departments
-      const { data: depts } = await supabase
+      const { data: depts, error: deptsError } = await supabase
         .from('departments')
         .select('*')
         .eq('organization_id', user.organization_id)
 
-      // Load recent messages
-      const { data: messages } = await supabase
+      if (deptsError) {
+        console.error('Error loading departments:', deptsError)
+      }
+
+      // Load recent messages - simplify the query
+      const { data: messages, error: messagesError } = await supabase
         .from('messages')
         .select(`
-          *,
-          sender:users(full_name, avatar_url)
+          id,
+          content,
+          created_at,
+          sender_id,
+          channel_id,
+          users!messages_sender_id_fkey(full_name, avatar_url)
         `)
-        .or(`recipient_id.eq.${user.id},channel_id.in.(select id from channels where members.cs.{${user.id}})`)
         .order('created_at', { ascending: false })
         .limit(5)
 
+      if (messagesError) {
+        console.error('Error loading messages:', messagesError)
+      }
+
       // Load pending tasks
-      const { data: tasks } = await supabase
+      const { data: tasks, error: tasksError } = await supabase
         .from('tasks')
         .select('*')
         .eq('assigned_to', user.id)
@@ -65,11 +78,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         .order('due_date', { ascending: true })
         .limit(5)
 
+      if (tasksError) {
+        console.error('Error loading tasks:', tasksError)
+      }
+
       setDepartments(depts || [])
       setRecentMessages(messages || [])
       setPendingTasks(tasks || [])
     } catch (error) {
       console.error('Error loading dashboard data:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -203,41 +222,51 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         </nav>
 
         {/* Main Content */}
-        <main className="flex-1">
-          {currentView === 'dashboard' && renderRoleBasedView()}
-          {currentView === 'messages' && (
-            <Messaging 
-              user={user} 
-              selectedChannel={selectedChannel}
-              onChannelSelect={setSelectedChannel}
-            />
-          )}
-          {currentView === 'tasks' && <Tasks user={user} />}
-          {currentView === 'documents' && <DocumentManager />}
-          {currentView === 'approvals' && <Approvals user={user} />}
-          {currentView === 'analytics' && <ExecutiveDashboard />}
-          {currentView === 'dashboard' && (
-            <>
-              {renderRoleBasedView()}
-              
-              {/* Quick Actions */}
-              <div className="mt-8 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <button className="bg-white p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-                    <Plus className="w-6 h-6 text-worksphere-600 mb-2" />
-                    <div className="font-medium">New Message</div>
-                  </button>
-                  <button className="bg-white p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-                    <CheckSquare className="w-6 h-6 text-worksphere-600 mb-2" />
-                    <div className="font-medium">Create Task</div>
-                  </button>
-                  <button className="bg-white p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-                    <FileText className="w-6 h-6 text-worksphere-600 mb-2" />
-                    <div className="font-medium">Request Approval</div>
-                  </button>
-                </div>
+        <main className="flex-1 p-8">
+          {loading && currentView === 'dashboard' ? (
+            <div className="flex items-center justify-center h-96">
+              <div className="text-center">
+                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading dashboard...</p>
               </div>
+            </div>
+          ) : (
+            <>
+              {currentView === 'dashboard' && (
+                <>
+                  {renderRoleBasedView()}
+                  
+                  {/* Quick Actions */}
+                  <div className="mt-8">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                    <div className="grid grid-cols-3 gap-4">
+                      <button className="bg-white p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                        <Plus className="w-6 h-6 text-worksphere-600 mb-2" />
+                        <div className="font-medium">New Message</div>
+                      </button>
+                      <button className="bg-white p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                        <CheckSquare className="w-6 h-6 text-worksphere-600 mb-2" />
+                        <div className="font-medium">Create Task</div>
+                      </button>
+                      <button className="bg-white p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                        <FileText className="w-6 h-6 text-worksphere-600 mb-2" />
+                        <div className="font-medium">Request Approval</div>
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+              {currentView === 'messages' && (
+                <Messaging 
+                  user={user} 
+                  selectedChannel={selectedChannel}
+                  onChannelSelect={setSelectedChannel}
+                />
+              )}
+              {currentView === 'tasks' && <Tasks user={user} />}
+              {currentView === 'documents' && <DocumentManager />}
+              {currentView === 'approvals' && <Approvals user={user} />}
+              {currentView === 'analytics' && <ExecutiveDashboard />}
             </>
           )}
         </main>

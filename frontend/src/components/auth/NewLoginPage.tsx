@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Mail, Lock, AlertCircle, ArrowRight } from 'lucide-react';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 export const NewLoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -11,6 +12,46 @@ export const NewLoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage] = useState(location.state?.message || '');
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data, error: signInError } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: credentialResponse.credential,
+      });
+
+      if (signInError) {
+        console.error('Google sign-in error:', signInError);
+        setError('Failed to sign in with Google. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      if (data?.user) {
+        console.log('Google sign-in successful:', data.user.email);
+        const role = data.user.user_metadata?.role || 'employee';
+        
+        if (role === 'admin' || role === 'ceo') {
+          navigate('/admin');
+        } else if (role === 'customer') {
+          navigate('/portal');
+        } else {
+          navigate('/dashboard');
+        }
+      }
+    } catch (err: any) {
+      console.error('Unexpected error during Google sign-in:', err);
+      setError('An unexpected error occurred. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Failed to sign in with Google. Please try again or use email/password.');
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,6 +199,25 @@ export const NewLoginPage: React.FC = () => {
                 </>
               )}
             </button>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+              </div>
+            </div>
+
+            {/* Google Sign-In Button */}
+            <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                useOneTap
+              />
+            </GoogleOAuthProvider>
           </form>
 
           {/* Sign Up Link */}

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PageTransition } from './hooks/useAppleAnimation';
+import { MobileNavigation } from './components/layout/MobileNavigation';
 import { 
   ProtectedRoute, 
   AdminRoute, 
@@ -32,12 +33,24 @@ import { NewLoginPage } from './components/auth/NewLoginPage';
 // import { ProfessionalAuth } from './components/auth/ProfessionalAuth';
 
 // Protected Components
-import { Dashboard } from './components/Dashboard';
+import { MobileDashboard } from './pages/dashboard/MobileDashboard';
+import { ResponsiveMessages } from './pages/messages/ResponsiveMessages';
+import { ResponsiveTasks } from './pages/tasks/ResponsiveTasks';
+import { CreateTaskPage } from './pages/tasks/CreateTaskPage';
+import { ResponsiveDocuments } from './pages/documents/ResponsiveDocuments';
+import { ResponsiveApprovals } from './pages/approvals/ResponsiveApprovals';
+import { ResponsiveProfile } from './pages/profile/ResponsiveProfile';
 
 // Error Pages
 import { UnauthorizedPage } from './pages/errors/UnauthorizedPage';
 import { NotFoundPage } from './pages/errors/NotFoundPage';
 import { TestSupabasePage } from './pages/TestSupabasePage';
+
+// Testing Utilities
+import { ButtonTestDashboard } from './pages/testing/ButtonTestDashboard';
+// Additional pages
+import { SettingsPage } from './pages/settings/SettingsPage';
+import { NotificationsPage } from './pages/notifications/NotificationsPage';
 
 // Signup type router component (commented out until components are created)
 // const SignupTypeRouter: React.FC = () => {
@@ -55,10 +68,14 @@ import { TestSupabasePage } from './pages/TestSupabasePage';
 //   }
 // };
 
-// Dashboard wrapper to handle user prop
-const DashboardWrapper: React.FC = () => {
-  const { user } = useAuth();
-  return <Dashboard user={user} />;
+// Protected layout wrapper with mobile navigation
+const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <MobileNavigation />
+      {children}
+    </div>
+  );
 };
 
 // Error page component
@@ -142,7 +159,18 @@ export const App: React.FC = () => {
             <Route path={ROUTES.protected.dashboard} element={
               <ProtectedRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
+                </PageTransition>
+              </ProtectedRoute>
+            } />
+            <Route path="/tasks/new" element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <ProtectedLayout>
+                    <CreateTaskPage />
+                  </ProtectedLayout>
                 </PageTransition>
               </ProtectedRoute>
             } />
@@ -151,42 +179,83 @@ export const App: React.FC = () => {
             <Route path={ROUTES.protected.admin} element={
               <AdminRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </AdminRoute>
+            } />
+            {/* extra pages accessible to all authenticated users */}
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <ProtectedLayout>
+                    <SettingsPage />
+                  </ProtectedLayout>
+                </PageTransition>
+              </ProtectedRoute>
+            } />
+            <Route path="/notifications" element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <ProtectedLayout>
+                    <NotificationsPage />
+                  </ProtectedLayout>
+                </PageTransition>
+              </ProtectedRoute>
             } />
             <Route path={ROUTES.protected.adminUsers} element={
               <AdminRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </AdminRoute>
             } />
             <Route path={ROUTES.protected.adminOrganizations} element={
               <AdminRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </AdminRoute>
             } />
             <Route path={ROUTES.protected.adminSubscriptions} element={
               <AdminRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
+                </PageTransition>
+              </AdminRoute>
+            } />
+            {/* button test dashboard - accessible to admins for QA */}
+            <Route path="/admin/button-test" element={
+              <AdminRoute>
+                <PageTransition>
+                  <ProtectedLayout>
+                    <ButtonTestDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </AdminRoute>
             } />
             <Route path={ROUTES.protected.adminAnalytics} element={
               <AdminRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </AdminRoute>
             } />
             <Route path={ROUTES.protected.adminSettings} element={
               <AdminRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </AdminRoute>
             } />
@@ -195,28 +264,36 @@ export const App: React.FC = () => {
             <Route path={ROUTES.protected.team} element={
               <ManagerRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </ManagerRoute>
             } />
             <Route path={ROUTES.protected.departments} element={
               <ManagerRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </ManagerRoute>
             } />
             <Route path={ROUTES.protected.approvals} element={
               <ManagerRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <ResponsiveApprovals />
+                  </ProtectedLayout>
                 </PageTransition>
               </ManagerRoute>
             } />
             <Route path={ROUTES.protected.analytics} element={
               <ManagerRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </ManagerRoute>
             } />
@@ -225,42 +302,54 @@ export const App: React.FC = () => {
             <Route path={ROUTES.protected.profile} element={
               <EmployeeRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <ResponsiveProfile />
+                  </ProtectedLayout>
                 </PageTransition>
               </EmployeeRoute>
             } />
             <Route path={ROUTES.protected.settings} element={
               <EmployeeRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <ResponsiveProfile />
+                  </ProtectedLayout>
                 </PageTransition>
               </EmployeeRoute>
             } />
             <Route path={ROUTES.protected.messages} element={
               <EmployeeRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <ResponsiveMessages />
+                  </ProtectedLayout>
                 </PageTransition>
               </EmployeeRoute>
             } />
             <Route path={ROUTES.protected.tasks} element={
               <EmployeeRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <ResponsiveTasks />
+                  </ProtectedLayout>
                 </PageTransition>
               </EmployeeRoute>
             } />
             <Route path={ROUTES.protected.documents} element={
               <EmployeeRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <ResponsiveDocuments />
+                  </ProtectedLayout>
                 </PageTransition>
               </EmployeeRoute>
             } />
             <Route path={ROUTES.protected.calendar} element={
               <EmployeeRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </EmployeeRoute>
             } />
@@ -269,28 +358,36 @@ export const App: React.FC = () => {
             <Route path={ROUTES.protected.customerPortal} element={
               <CustomerRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </CustomerRoute>
             } />
             <Route path={ROUTES.protected.customerTickets} element={
               <CustomerRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </CustomerRoute>
             } />
             <Route path={ROUTES.protected.customerDocuments} element={
               <CustomerRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <ResponsiveDocuments />
+                  </ProtectedLayout>
                 </PageTransition>
               </CustomerRoute>
             } />
             <Route path={ROUTES.protected.customerMessages} element={
               <CustomerRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <ResponsiveMessages />
+                  </ProtectedLayout>
                 </PageTransition>
               </CustomerRoute>
             } />
@@ -299,56 +396,72 @@ export const App: React.FC = () => {
             <Route path={ROUTES.protected.whiteLabel} element={
               <EnterpriseRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </EnterpriseRoute>
             } />
             <Route path={ROUTES.protected.whiteLabelSettings} element={
               <EnterpriseRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </EnterpriseRoute>
             } />
             <Route path={ROUTES.protected.whiteLabelTheme} element={
               <EnterpriseRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </EnterpriseRoute>
             } />
             <Route path={ROUTES.protected.whiteLabelDomain} element={
               <EnterpriseRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </EnterpriseRoute>
             } />
             <Route path={ROUTES.protected.enterpriseSettings} element={
               <EnterpriseRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </EnterpriseRoute>
             } />
             <Route path={ROUTES.protected.enterpriseBilling} element={
               <EnterpriseRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </EnterpriseRoute>
             } />
             <Route path={ROUTES.protected.enterpriseApi} element={
               <EnterpriseRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </EnterpriseRoute>
             } />
             <Route path={ROUTES.protected.enterpriseAudit} element={
               <EnterpriseRoute>
                 <PageTransition>
-                  <DashboardWrapper />
+                  <ProtectedLayout>
+                    <MobileDashboard />
+                  </ProtectedLayout>
                 </PageTransition>
               </EnterpriseRoute>
             } />

@@ -10,11 +10,27 @@ if (!supabaseUrl || !supabaseAnonKey) {
 console.log('Supabase URL:', supabaseUrl)
 console.log('Supabase Key exists:', !!supabaseAnonKey)
 
+// Custom fetch function with error handling
+const customFetch = (...args: Parameters<typeof fetch>) => {
+  return fetch(...args).catch((err) => {
+    console.error('Supabase request failed:', {
+      url: args[0],
+      error: err.message,
+      timestamp: new Date().toISOString()
+    })
+    throw err
+  })
+}
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    flowType: 'implicit'
+  },
+  global: {
+    fetch: customFetch
   }
 })
 

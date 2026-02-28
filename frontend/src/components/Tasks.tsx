@@ -70,28 +70,40 @@ export const Tasks: React.FC<TasksProps> = ({ user }) => {
 
   const loadTasks = async () => {
     try {
-      let query = supabase
+      const { data, error } = await supabase
         .from('tasks')
         .select(`
-          *,
-          assigned_to_user:assigned_to (full_name, avatar_url),
-          assigned_by_user:assigned_by (full_name, avatar_url),
-          department:department_id (name)
+          id,
+          title,
+          description,
+          assigned_to,
+          assigned_by,
+          department_id,
+          status,
+          priority,
+          due_date,
+          completed_at,
+          attachments,
+          created_at,
+          users!tasks_assigned_to_fkey(full_name, avatar_url),
+          users!tasks_assigned_by_fkey(full_name, avatar_url)
         `)
-        .eq('organization_id', user.organization_id)
         .order('created_at', { ascending: false })
 
-      // Filter based on user role
-      if (user.role !== 'ceo') {
-        query = query.or(`assigned_to.eq.${user.id},assigned_by.eq.${user.id}`)
+      if (error) {
+        console.error('Error loading tasks:', error)
+        setTasks([])
+      } else if (data) {
+        // Filter tasks based on user role and permissions
+        const filtered = data.filter(task => {
+          if (user.role === 'ceo' || user.role === 'admin') return true
+          return task.assigned_to === user.id || task.assigned_by === user.id
+        })
+        setTasks(filtered as Task[])
       }
-
-      const { data, error } = await query
-
-      if (error) throw error
-      setTasks(data || [])
     } catch (error) {
       console.error('Error loading tasks:', error)
+      setTasks([])
     } finally {
       setLoading(false)
     }
@@ -99,12 +111,16 @@ export const Tasks: React.FC<TasksProps> = ({ user }) => {
 
   const loadUsers = async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('users')
         .select('id, full_name, avatar_url, department_id')
-        .eq('organization_id', user.organization_id)
+        .order('full_name', { ascending: true })
 
-      setUsers(data || [])
+      if (error) {
+        console.error('Error loading users:', error)
+      } else {
+        setUsers(data || [])
+      }
     } catch (error) {
       console.error('Error loading users:', error)
     }

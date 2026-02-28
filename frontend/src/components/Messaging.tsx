@@ -71,17 +71,30 @@ export const Messaging: React.FC<MessagingProps> = ({ user, selectedChannel, onC
 
   const loadChannels = async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('channels')
         .select(`
-          *,
-          department:department_id (name)
+          id,
+          name,
+          type,
+          organization_id,
+          department_id,
+          members,
+          settings,
+          created_at
         `)
-        .or(`members.cs.{${user.id}},type.eq.announcement`)
         .eq('organization_id', user.organization_id)
+        .limit(50)
 
-      if (data) {
-        setChannels(data)
+      if (error) {
+        console.error('Error loading channels:', error)
+      } else if (data) {
+        // Filter channels where user is member or it's an announcement
+        const filtered = data.filter(channel => 
+          channel.type === 'announcement' || 
+          (Array.isArray(channel.members) && channel.members.includes(user.id))
+        )
+        setChannels(filtered)
       }
     } catch (error) {
       console.error('Error loading channels:', error)
@@ -90,17 +103,25 @@ export const Messaging: React.FC<MessagingProps> = ({ user, selectedChannel, onC
 
   const loadMessages = async (channelId: string) => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('messages')
         .select(`
-          *,
-          sender:sender_id (full_name, avatar_url)
+          id,
+          content,
+          sender_id,
+          channel_id,
+          file_urls,
+          file_types,
+          created_at,
+          users!messages_sender_id_fkey(full_name, avatar_url)
         `)
         .eq('channel_id', channelId)
         .order('created_at', { ascending: true })
 
-      if (data) {
-        setMessages(data)
+      if (error) {
+        console.error('Error loading messages:', error)
+      } else if (data) {
+        setMessages(data as Message[])
       }
     } catch (error) {
       console.error('Error loading messages:', error)

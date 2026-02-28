@@ -1,7 +1,7 @@
 // src/pages/public/PrivacyPolicyPage.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, ArrowLeft, Lock, Database } from 'lucide-react';
+import { Shield, ArrowLeft, Lock } from 'lucide-react';
 
 export const PrivacyPolicyPage: React.FC = () => {
   const lastUpdated = 'February 28, 2026';

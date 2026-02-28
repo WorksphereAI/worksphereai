@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Mail, Lock, User, Building2, AlertCircle, ArrowRight, CheckCircle } from 'lucide-react';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 type UserType = 'enterprise' | 'individual' | 'customer';
 
@@ -22,6 +23,41 @@ export const NewSignupPage: React.FC = () => {
     phone: '',
     acceptTerms: false
   });
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data, error: signInError } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: credentialResponse.credential,
+      });
+
+      if (signInError) {
+        console.error('Google sign-up error:', signInError);
+        setError('Failed to sign up with Google. Please try email/password instead.');
+        setLoading(false);
+        return;
+      }
+
+      if (data?.user) {
+        console.log('Google sign-up successful:', data.user.email);
+        
+        // For new users, we might want to show the organization setup step
+        // For now, just redirect
+        navigate('/dashboard');
+      }
+    } catch (err: any) {
+      console.error('Unexpected error during Google sign-up:', err);
+      setError('An unexpected error occurred. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Failed to sign up with Google. Please try email/password instead.');
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -267,48 +303,70 @@ export const NewSignupPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
+      <div className="w-full max-w-md container-responsive form-responsive">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">WS</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-600 mt-2">Join WorkSphere AI today</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
+          <p className="text-gray-600 mb-8 text-responsive">Join WorkSphere AI today</p>
         </div>
 
         {/* User Type Selection (only on step 1) */}
         {step === 1 && (
-          <div className="bg-white rounded-2xl shadow-xl p-6 mb-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 mb-4 card-responsive">
             <label className="block text-sm font-medium text-gray-700 mb-3">
               I want to sign up as:
             </label>
             <div className="grid grid-cols-3 gap-3">
-              {(['enterprise', 'individual', 'customer'] as UserType[]).map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setUserType(type)}
-                  className={`p-3 border rounded-xl text-center transition ${
-                    userType === type
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-blue-300'
-                  }`}
-                >
-                  <span className="text-sm font-medium capitalize text-gray-900">{type === 'enterprise' ? 'Enterprise' : type === 'individual' ? 'Individual' : 'Customer'}</span>
-                </button>
-              ))}
+              <button
+                type="button"
+                onClick={() => setUserType('enterprise')}
+                className={`p-3 rounded-xl border-2 transition-all ${
+                  userType === 'enterprise'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <Building2 size={20} className="mx-auto mb-1" />
+                <span className="text-xs font-medium">Enterprise</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setUserType('individual')}
+                className={`p-3 rounded-xl border-2 transition-all ${
+                  userType === 'individual'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <User size={20} className="mx-auto mb-1" />
+                <span className="text-xs font-medium">Individual</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setUserType('customer')}
+                className={`p-3 rounded-xl border-2 transition-all ${
+                  userType === 'customer'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <User size={20} className="mx-auto mb-1" />
+                <span className="text-xs font-medium">Customer</span>
+              </button>
             </div>
           </div>
         )}
 
         {/* Signup Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="bg-white rounded-2xl shadow-xl p-8 card-responsive">
+          <form onSubmit={handleSubmit} className="space-y-5 form-responsive">
             {step === 1 ? (
               <>
                 {/* Full Name */}
-                <div>
+                <div className="form-group-mobile">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Full Name <span className="text-red-500">*</span>
                   </label>
@@ -319,7 +377,7 @@ export const NewSignupPage: React.FC = () => {
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl input-responsive focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="John Doe"
                       required
                     />
@@ -485,6 +543,25 @@ export const NewSignupPage: React.FC = () => {
               </button>
             </div>
           </form>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or sign up with</span>
+            </div>
+          </div>
+
+          {/* Google Sign-Up Button */}
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              useOneTap
+            />
+          </GoogleOAuthProvider>
 
           {/* Login Link */}
           <p className="text-center mt-6 text-sm text-gray-600">

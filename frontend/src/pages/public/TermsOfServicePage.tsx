@@ -1,7 +1,7 @@
 // src/pages/public/TermsOfServicePage.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, ArrowLeft, Shield } from 'lucide-react';
+import { FileText, ArrowLeft } from 'lucide-react';
 
 export const TermsOfServicePage: React.FC = () => {
   const lastUpdated = 'February 28, 2026';
