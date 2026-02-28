@@ -152,10 +152,10 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
 
         if (error) throw error;
 
-        // Create user record immediately without email verification
+        // Create auth user + user record immediately
         if (data.user) {
           try {
-            await userService.createUser({
+            await userService.createAuthUser(normalizedEmail, password, {
               email: normalizedEmail,
               full_name: formData.fullName,
               role: 'employee', // Default role for professional signup
@@ -165,22 +165,10 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
               }
             });
 
-            // Try to sign in the user immediately after account creation
-            // debug: avoid logging password; show email and password length
-            console.debug('Attempting immediate sign-in for', normalizedEmail, 'passwordLength=', password?.length);
-
-            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-              email: normalizedEmail,
-              password
-            });
-
-            if (!signInError && signInData.user) {
-              const userProfile = await getUserProfile(signInData.user.id);
-              if (userProfile) {
-                onAuth(userProfile);
-              }
-            } else {
-              setSuccessMessage('Account created successfully! You can now log in.');
+            // User is already authenticated from createAuthUser, just get profile
+            const userProfile = await getUserProfile(data.user.id);
+            if (userProfile) {
+              onAuth(userProfile);
             }
           } catch (userCreationError) {
             console.error('Error creating user record:', userCreationError);
@@ -217,28 +205,7 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
     }
   };
 
-  // Retry helper for signIn to handle transient errors (non-400).
-  const signInWithRetry = async (email: string, password: string, retries = 1) => {
-    let attempt = 0;
-    while (true) {
-      attempt++;
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (!error) return { data, error };
-
-      // If client error (invalid credentials) do not retry
-      if ((error as any)?.status === 400) {
-        return { data, error };
-      }
-
-      if (attempt > retries) {
-        return { data, error };
-      }
-
-      // small backoff before retry
-      await new Promise((res) => setTimeout(res, 300 * attempt));
-    }
-  };
-
+  
   const handleGoogleAuth = async (credential: string) => {
     setIsLoading(true);
     setErrors({});
