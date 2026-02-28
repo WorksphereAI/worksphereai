@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Building2, Mail, Lock, User, Eye, EyeOff, Check, AlertCircle, Loader2, ArrowRight, Shield, Zap, Globe } from 'lucide-react';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 
 interface AuthProps {
   onAuth: (user: any) => void;
@@ -225,7 +225,8 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'your-google-client-id'}>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
@@ -536,6 +537,6 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
           </div>
         </div>
       </div>
-    </div>
+    </GoogleOAuthProvider>
   );
 };
