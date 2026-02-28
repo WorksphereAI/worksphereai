@@ -1,9 +1,9 @@
+/* Import Apple Design System */
+@import './styles/apple-design-system.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import Apple Design System */
-@import './styles/apple-design-system.css';
 
 /* Base layer overrides */
 @layer base {
