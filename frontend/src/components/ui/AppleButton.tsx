@@ -35,7 +35,8 @@ export const AppleButton: React.FC<AppleButtonProps> = ({
     primary: 'bg-[#007AFF] text-white hover:bg-[#0066CC] active:bg-[#0055B3] focus:ring-[#007AFF] shadow-sm hover:shadow-md border border-transparent',
     secondary: 'bg-[#F2F2F7] text-[#1C1C1E] hover:bg-[#E5E5EA] active:bg-[#D1D1D6] focus:ring-[#8E8E93] border border-[#D1D1D6]',
     tertiary: 'bg-transparent text-[#007AFF] hover:bg-[#F2F2F7] active:bg-[#E5E5EA] focus:ring-[#007AFF] border border-transparent',
-    glass: 'bg-white/20 backdrop-blur-xl text-white border border-white/30 hover:bg-white/30 active:bg-white/40 focus:ring-white/50 shadow-lg',
+    // Use dark text on light backgrounds and white text in dark mode for better contrast
+    glass: 'bg-white/20 backdrop-blur-xl text-[#1C1C1E] dark:text-white border border-white/30 hover:bg-white/30 active:bg-white/40 focus:ring-white/50 shadow-lg',
     danger: 'bg-[#FF3B30] text-white hover:bg-[#D70015] active:bg-[#C70010] focus:ring-[#FF3B30] shadow-sm hover:shadow-md border border-transparent',
   };
   

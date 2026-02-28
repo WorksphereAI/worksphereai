@@ -22,7 +22,8 @@ export const AppleCard: React.FC<AppleCardProps> = ({
 }) => {
   const variants = {
     default: 'bg-white border border-[#F2F2F7] shadow-sm',
-    glass: 'bg-white/80 backdrop-blur-xl border border-white/50 shadow-lg',
+    // Ensure content inside glass cards remains readable in light and dark modes
+    glass: 'bg-white/80 backdrop-blur-xl text-[#1C1C1E] dark:text-white border border-white/50 shadow-lg',
     outlined: 'border border-[#E5E5EA] bg-transparent',
     elevated: 'bg-white border border-[#F2F2F7] shadow-lg',
   };
