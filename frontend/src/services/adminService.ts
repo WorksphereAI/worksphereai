@@ -1,6 +1,6 @@
 // src/services/adminService.ts
 import { supabase } from '../lib/supabase';
-import { subDays, format, differenceInDays } from 'date-fns';
+import { subDays, format } from 'date-fns';
 
 export interface AdminMetrics {
   overview: {
@@ -64,6 +64,17 @@ export interface SystemHealth {
   }>;
 }
 
+// Type for subscription with plan data
+interface SubscriptionWithPlan {
+  plan_id: string;
+  billing_cycle: 'monthly' | 'yearly';
+  subscription_plans: {
+    name: string;
+    price_monthly: number;
+    price_yearly: number;
+  } | null;
+}
+
 export class AdminService {
   
   // ============= DASHBOARD METRICS =============
@@ -86,7 +97,7 @@ export class AdminService {
       .select('*')
       .order('date', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     // Get active users today
     const today = new Date().toISOString().split('T')[0];
@@ -107,7 +118,7 @@ export class AdminService {
     if (churnData && churnData.length >= 2) {
       const startCustomers = churnData[0].paid_organizations;
       const endCustomers = churnData[churnData.length - 1].paid_organizations;
-      churnRate = ((startCustomers - endCustomers) / startCustomers) * 100;
+      churnRate = startCustomers > 0 ? ((startCustomers - endCustomers) / startCustomers) * 100 : 0;
     }
 
     return {
@@ -129,6 +140,7 @@ export class AdminService {
     switch (timeRange) {
       case 'today':
         startDate = new Date();
+        startDate.setHours(0, 0, 0, 0);
         break;
       case 'week':
         startDate = subDays(new Date(), 7);
@@ -150,10 +162,13 @@ export class AdminService {
       .gte('paid_at', startDate.toISOString())
       .order('paid_at', { ascending: true });
 
-    const dailyMap = new Map();
+    const dailyMap = new Map<string, number>();
     dailyInvoices?.forEach(invoice => {
-      const date = format(new Date(invoice.paid_at), 'yyyy-MM-dd');
-      dailyMap.set(date, (dailyMap.get(date) || 0) + invoice.amount_paid);
+      if (invoice.paid_at) {
+        const date = format(new Date(invoice.paid_at), 'yyyy-MM-dd');
+        const currentAmount = dailyMap.get(date) || 0;
+        dailyMap.set(date, currentAmount + (invoice.amount_paid || 0));
+      }
     });
 
     const daily = Array.from(dailyMap.entries()).map(([date, revenue]) => ({
@@ -175,12 +190,17 @@ export class AdminService {
       `)
       .eq('status', 'active');
 
-    const planMap = new Map();
-    subscriptions?.forEach(sub => {
+    const planMap = new Map<string, { count: number; revenue: number }>();
+    
+    (subscriptions as unknown as SubscriptionWithPlan[] | null)?.forEach(sub => {
       const planName = sub.subscription_plans?.name || 'Unknown';
-      const revenue = sub.billing_cycle === 'yearly' 
-        ? (sub.subscription_plans?.price_yearly || 0) / 12
-        : (sub.subscription_plans?.price_monthly || 0);
+      let revenue = 0;
+      
+      if (sub.subscription_plans) {
+        revenue = sub.billing_cycle === 'yearly' 
+          ? (sub.subscription_plans.price_yearly || 0) / 12
+          : (sub.subscription_plans.price_monthly || 0);
+      }
       
       const current = planMap.get(planName) || { count: 0, revenue: 0 };
       planMap.set(planName, {
@@ -207,6 +227,7 @@ export class AdminService {
     switch (timeRange) {
       case 'today':
         startDate = new Date();
+        startDate.setHours(0, 0, 0, 0);
         break;
       case 'week':
         startDate = subDays(new Date(), 7);
@@ -281,7 +302,7 @@ export class AdminService {
       .from('organizations')
       .select(`
         *,
-        organization_subscriptions!inner (
+        organization_subscriptions (
           status,
           billing_cycle,
           subscription_plans (name)
@@ -304,7 +325,10 @@ export class AdminService {
     }
 
     if (filters?.health) {
-      query = query.gte('customer_success_metrics.health_score', parseInt(filters.health));
+      const healthValue = parseInt(filters.health);
+      if (!isNaN(healthValue)) {
+        query = query.gte('customer_success_metrics.health_score', healthValue);
+      }
     }
 
     const page = filters?.page || 1;
@@ -318,18 +342,28 @@ export class AdminService {
 
     if (error) throw error;
 
-    const customers = data?.map(org => ({
-      id: org.id,
-      organization_name: org.name,
-      email: org.email,
-      plan: org.organization_subscriptions?.[0]?.subscription_plans?.name || 'Free',
-      status: org.organization_subscriptions?.[0]?.status || 'inactive',
-      mrr: 0, // Calculate from subscription
-      users: 0, // Count users
-      created_at: org.created_at,
-      last_active: org.updated_at,
-      health_score: org.customer_success_metrics?.[0]?.health_score || 0
-    })) || [];
+    const customers = data?.map(org => {
+      const subscription = Array.isArray(org.organization_subscriptions) 
+        ? org.organization_subscriptions[0] 
+        : org.organization_subscriptions;
+      
+      const successMetrics = Array.isArray(org.customer_success_metrics)
+        ? org.customer_success_metrics[0]
+        : org.customer_success_metrics;
+
+      return {
+        id: org.id,
+        organization_name: org.name,
+        email: org.email || '',
+        plan: subscription?.subscription_plans?.name || 'Free',
+        status: subscription?.status || 'inactive',
+        mrr: 0, // Calculate from subscription
+        users: 0, // Count users
+        created_at: org.created_at,
+        last_active: org.updated_at,
+        health_score: successMetrics?.health_score || 0
+      };
+    }) || [];
 
     return {
       customers,
@@ -338,23 +372,23 @@ export class AdminService {
   }
 
   async getCustomerDetails(organizationId: string): Promise<any> {
-    const [organization, subscription, metrics, users, usage] = await Promise.all([
-      supabase.from('organizations').select('*').eq('id', organizationId).single(),
+    const [organizationResult, subscriptionResult, metricsResult, usersResult, usageResult] = await Promise.all([
+      supabase.from('organizations').select('*').eq('id', organizationId).maybeSingle(),
       supabase.from('organization_subscriptions').select(`
         *,
         subscription_plans (*)
-      `).eq('organization_id', organizationId).single(),
-      supabase.from('customer_success_metrics').select('*').eq('organization_id', organizationId).single(),
-      supabase.from('users').select('count').eq('organization_id', organizationId),
+      `).eq('organization_id', organizationId).maybeSingle(),
+      supabase.from('customer_success_metrics').select('*').eq('organization_id', organizationId).maybeSingle(),
+      supabase.from('users').select('*', { count: 'exact', head: true }).eq('organization_id', organizationId),
       supabase.from('usage_metrics').select('*').eq('organization_id', organizationId).order('metric_date', { ascending: false }).limit(30)
     ]);
 
     return {
-      organization: organization.data,
-      subscription: subscription.data,
-      metrics: metrics.data,
-      userCount: users.count || 0,
-      usage: usage.data || []
+      organization: organizationResult.data,
+      subscription: subscriptionResult.data,
+      metrics: metricsResult.data,
+      userCount: usersResult.count || 0,
+      usage: usageResult.data || []
     };
   }
 
@@ -499,8 +533,8 @@ export class AdminService {
   // ============= SYSTEM HEALTH =============
 
   async getSystemHealth(): Promise<SystemHealth> {
-    // Get latest health metrics
-    const { data: _metrics } = await supabase
+    // Get latest health metrics (unused but kept for future use)
+    await supabase
       .from('system_health_metrics')
       .select('*')
       .order('timestamp', { ascending: false })
@@ -518,7 +552,7 @@ export class AdminService {
     let status: 'healthy' | 'degraded' | 'down' = 'healthy';
     if (alerts?.some(a => a.severity === 'critical')) {
       status = 'down';
-    } else if (alerts?.some(a => a.severity === 'error')) {
+    } else if (alerts?.some(a => a.severity === 'error' || a.severity === 'high')) {
       status = 'degraded';
     }
 
@@ -684,7 +718,7 @@ export class AdminService {
   ): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     
-    await supabase.from('admin_audit_logs').insert([{
+    const { error } = await supabase.from('admin_audit_logs').insert([{
       admin_id: user?.id,
       action,
       entity_type: entityType,
@@ -693,6 +727,11 @@ export class AdminService {
       ip_address: '', // Would get from request
       user_agent: '' // Would get from request
     }]);
+
+    if (error) {
+      console.error('Failed to log admin action:', error);
+      // Don't throw - logging should not break the main operation
+    }
   }
 }
 

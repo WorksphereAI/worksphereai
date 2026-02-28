@@ -91,6 +91,9 @@ ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
 -- Drop existing policies if they exist
 DROP POLICY IF EXISTS "Organizations can view their invoices" ON subscription_invoices;
+DROP POLICY IF EXISTS "Organizations can view their usage metrics" ON usage_metrics;
+DROP POLICY IF EXISTS "Organizations can view their payment methods" ON payment_methods;
+DROP POLICY IF EXISTS "Users can view their notifications" ON notifications;
 
 -- RLS Policies for stripe_checkout_sessions
 CREATE POLICY "Organizations can view their checkout sessions" ON stripe_checkout_sessions
