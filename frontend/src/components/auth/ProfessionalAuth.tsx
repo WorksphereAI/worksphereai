@@ -1,7 +1,8 @@
 // src/components/auth/ProfessionalAuth.tsx
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { Building2, Mail, Lock, User, Eye, EyeOff, Check, AlertCircle, Loader2, ArrowRight, Shield, Zap, Globe } from 'lucide-react';
+import { Building2, Mail, Lock, User, Eye, EyeOff, Check, AlertCircle, Loader2, ArrowRight, Shield, Zap, Globe, ArrowLeft } from 'lucide-react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 
 interface AuthProps {
@@ -25,6 +26,8 @@ interface FormErrors {
 }
 
 export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -39,8 +42,15 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
+    // Determine auth mode based on URL
+    const path = location.pathname;
+    if (path === '/signup' || path === '/register') {
+      setIsSignUp(true);
+    } else {
+      setIsSignUp(false);
+    }
     checkExistingSession();
-  }, []);
+  }, [location.pathname]);
 
   const checkExistingSession = async () => {
     try {
@@ -510,7 +520,7 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
                   </button>
                 </form>
 
-                <div className="mt-6 text-center">
+                <div className="mt-6 text-center space-y-3">
                   <button
                     onClick={() => {
                       setIsSignUp(!isSignUp);
@@ -531,6 +541,18 @@ export const ProfessionalAuth: React.FC<AuthProps> = ({ onAuth }) => {
                       : "Don't have an account? Sign up"
                     }
                   </button>
+                  
+                  {!isSignUp && (
+                    <div className="text-center">
+                      <p className="text-gray-500 text-sm mb-2">or choose your account type</p>
+                      <button
+                        onClick={() => navigate('/signup')}
+                        className="text-purple-600 hover:text-purple-700 font-medium text-sm transition-colors"
+                      >
+                        View signup options →
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

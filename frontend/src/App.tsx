@@ -90,6 +90,10 @@ function App() {
         
         {/* Authentication routes */}
         <Route path="/login" element={<ProfessionalAuth onAuth={setUser} />} />
+        <Route path="/signin" element={<ProfessionalAuth onAuth={setUser} />} />
+        <Route path="/register" element={<Navigate to="/signup" replace />} />
+        
+        {/* Signup routes */}
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/signup/enterprise" element={<EnterpriseSignup />} />
         <Route path="/signup/individual" element={<IndividualSignup />} />
@@ -97,12 +101,29 @@ function App() {
         
         {/* Email verification */}
         <Route path="/verify-email" element={<EmailVerification />} />
+        <Route path="/verify" element={<EmailVerification />} />
         
         {/* Onboarding */}
         <Route path="/onboarding" element={<OnboardingFlow />} />
+        <Route path="/setup" element={<OnboardingFlow />} />
+        
+        {/* Password reset */}
+        <Route path="/reset-password" element={<ProfessionalAuth onAuth={setUser} />} />
+        <Route path="/forgot-password" element={<ProfessionalAuth onAuth={setUser} />} />
         
         {/* Protected routes */}
         <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" replace />} />
+        <Route path="/app" element={user ? <Dashboard user={user} /> : <Navigate to="/login" replace />} />
+        
+        {/* Customer portal */}
+        <Route path="/customer-portal" element={user ? <Dashboard user={user} /> : <Navigate to="/signup/customer" replace />} />
+        
+        {/* Admin routes */}
+        <Route path="/admin" element={user ? <Dashboard user={user} /> : <Navigate to="/login" replace />} />
+        
+        {/* Legacy routes - redirect to new ones */}
+        <Route path="/auth" element={<Navigate to="/login" replace />} />
+        <Route path="/authenticate" element={<Navigate to="/login" replace />} />
         
         {/* Catch all - redirect to signup */}
         <Route path="*" element={<Navigate to="/signup" replace />} />
